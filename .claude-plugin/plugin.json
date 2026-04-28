@@ -4,13 +4,13 @@
   "description": "A Claude Code skill that runs a council of personas over any artifact before you commit to it.",
   "author": {
     "name": "Josh Botz",
-    "url": "https://github.com/botzpillar"
+    "url": "https://github.com/botz-pillar"
   },
   "license": "MIT",
-  "homepage": "https://github.com/botzpillar/battle-test",
+  "homepage": "https://github.com/botz-pillar/battle-test",
   "repository": {
     "type": "git",
-    "url": "https://github.com/botzpillar/battle-test.git"
+    "url": "https://github.com/botz-pillar/battle-test.git"
   },
   "keywords": [
     "claude-code",

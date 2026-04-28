@@ -19,7 +19,7 @@ This repo is also a worked example of a Claude Code *skill*. If you've found you
 ## Install
 
 ```
-claude plugin install botzpillar/battle-test
+claude plugin install botz-pillar/battle-test
 ```
 
 > **Before running on your own artifacts, see [Data flow & sub-processors](#data-flow--sub-processors) below.**
@@ -140,4 +140,4 @@ No GitHub Action. No SaaS. No community persona-pack contribution structure — 
 
 ## License + author
 
-MIT. Maintained by [Josh Botz](https://github.com/botzpillar) (Pillar Security).
+MIT. Maintained by [Josh Botz](https://github.com/botz-pillar) (Pillar Security).
