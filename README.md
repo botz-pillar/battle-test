@@ -113,9 +113,28 @@ For HIPAA / PCI / FedRAMP / EU AI Act / GDPR / CUI workflows: run your vendor-ri
 
 The pre-flight banner asks you to confirm the artifact is approved for third-party AI processing before each run. The `--yes` flag skips the prompt; pair it with `--data-classification-confirmed` in scripted use, otherwise the skill warns you on stderr.
 
+## Threat model
+
+Before reading the security architecture, here's what battle-test is defending against. The four guarantees below are scoped to *these* adversaries; outside this list, no claims are made.
+
+| Adversary | Capability | What they can move |
+|-----------|-----------|-------------------|
+| **Artifact author** (most common) | Authors or edits the file you point the skill at. Can embed prompt-injection payloads, role-shift directives, fake-system-message framings, hidden Unicode, fence-breakout attempts, attacker-controlled URLs / code blocks. | Can attempt to manipulate persona responses. **Cannot escalate to the host** — subagents have `allowed_tools=[]`. |
+| **Filename-controlled adversary** | Authors or edits the file *and* its filename. Same as above plus: can pick a filename pattern that auto-routes to a more permissive stage (`-DRAFT.md` vs `-FINAL.md`). | Can influence which personas review the artifact when stage is auto-detected. **Mitigation: pass `--stage` explicitly when reviewing third-party content**; the pre-flight banner surfaces this when stage is auto-detected. |
+| **Persona-output coercer** | Successfully shifts a persona's reasoning via injection. | Can produce biased findings. **Cannot inject into the synthesizer** — synthesizer ingests structured fields wrapped in fresh nonce-tagged fences and validates against schema; verdict is computed from validated counts/votes, not synthesizer prose. |
+| **Output-render exploiter** | Hopes the HTML report renders attacker-controlled strings as live HTML. | **Cannot** — every interpolated string is HTML-entity escaped, CSP `default-src 'none'` blocks resource loads, no `<script>`/`<a href>`/`<img src>`/`style=` from artifact content. |
+
+**What is NOT in the threat model:**
+
+- **Skill-file tamperer.** An attacker who can edit `skills/battle-test/SKILL.md`, `personas/*.md`, or `models.json` on your local machine has *full* control of the review pipeline (and likely full code execution as your user, independent of this skill). Treat the skill files like any other code you run — review on install and on update, pin to known-good commits if you fork.
+- **Anthropic-side compromise.** Personas dispatch as Claude API calls. If the model behaves maliciously or the inference path is compromised, no part of this skill protects you. This is the same trust posture as any other Claude Code workflow.
+- **Network adversary against your Claude Code session.** Out of scope — that's a Claude Code property, not a battle-test property.
+
+The architecture below mitigates the four in-scope adversaries. If your threat model includes more (e.g., supply-chain assurance for the skill itself), bring additional controls (signed releases, pinned hashes, sandbox isolation).
+
 ## Security architecture
 
-Four numbered guarantees. All four ship in v1.0.
+Four numbered guarantees, scoped to the threat model above. All four ship in v1.0.
 
 1. **Subagent least-privilege.** Persona subagents are dispatched with `allowed_tools=[]`. Even on full prompt-injection success against a persona, the resulting subagent has no tools — no `Read`, no `Bash`, no network. The orchestrator pre-reads the artifact bytes and passes them inline.
 2. **Nonce-tagged input fence.** Per-dispatch CSPRNG nonce on the `<artifact_<nonce>>` fence. Any literal `</artifact_<nonce>>` in the artifact is HTML-entity-escaped before interpolation, so the artifact cannot break out of the fence.

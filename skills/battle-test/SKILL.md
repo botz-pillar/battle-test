@@ -76,7 +76,12 @@ If `--stage` is not provided, apply this filename-pattern table (case-sensitive 
 
 `pre-publish` is the explicit final-gate stage. `lesson` is selectable only via `--stage lesson` (no filename pattern auto-detects it; opt-in for fully-formed teaching artifacts).
 
-Print: `Stage: <stage> (auto-detected — override with --stage)` or `Stage: <stage> (explicit)`.
+Print:
+
+- On auto-detect: `Stage: <stage> (auto-detected from filename)` followed on the next line by `⚠ Filename-driven stage detection lets the artifact author pick which personas review it. Pass --stage to lock the stage independent of filename.` Always emit this warning when stage was auto-detected (not when `--stage` was passed explicitly).
+- On explicit override: `Stage: <stage> (explicit via --stage)`. No warning.
+
+This is a defensive nudge, not a gate. The skill still runs at the auto-detected stage. The warning surfaces the attack class so the user (the person *reading* the report, who may not be the artifact author) can decide whether to trust the auto-detection.
 
 ### Step 3 — Select tier
 
@@ -209,6 +214,20 @@ You are reviewing an artifact in the persona of <persona-id>, as part of a /batt
 4. Simplification opportunity (what to cut/compress)
 5. 80/20 opportunity (what 20% delivers 80% of remaining value)
 6. Anti-slop check: padding, generic AI prose, filler? Yes → quote verbatim. No → say so plainly.
+
+## Severity rubric — apply this when assigning Critical / Material / Polish
+
+The verdict is computed mechanically from your severity counts, so be calibrated. Apply the operational thresholds below — your *lens* shapes what you flag, but the *threshold* is shared across all personas.
+
+- **Critical** — at least one of: (a) would mislead the artifact's stated audience in a way that produces a wrong belief or wrong action; (b) would fail a hostile expert read or hostile recruiter scan; (c) is a security/correctness defect that could cause real-world harm; (d) is structural — fixing requires redesign, not edit. Rare. If you are filing more than 1-2 Criticals per review, your threshold is probably miscalibrated unless the artifact is genuinely broken.
+- **Material** — would meaningfully degrade the artifact's effectiveness for its audience, but is fixable with edits at the current structure. The author should fix it before publishing/shipping; a reviewer would object if it shipped as-is. This is the most common severity. Most reviews land here.
+- **Polish** — refinement that improves quality but isn't blocking. Reasonable readers could disagree on whether to fix it. Stylistic preferences, minor reorderings, optional clarifications.
+
+**Anti-pattern (do NOT do this):** inflating severity to make a point. If the contrarian is the only persona finding something Critical, ask whether you're flagging a structural defect or a strong opinion. If the audience-skeptic is filing 5 Criticals, ask whether your threshold matches the rubric or your persona's frustration. The mechanical verdict assumes the rubric is shared; over-tagging breaks the math.
+
+**Anti-pattern (also do NOT do this):** under-tagging to be polite. If something genuinely meets the Critical threshold, file it Critical. Saying "everyone votes Ship" on a Structural-Rework-grade artifact is a worse failure mode than over-tagging.
+
+If you're uncertain between two adjacent tiers, default to the lower one (Material over Critical, Polish over Material) and explain the reasoning in the finding text.
 
 ## Stage-specific add-on
 <stage add-on question, or "n/a — custom stage has no add-on">
