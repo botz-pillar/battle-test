@@ -1,0 +1,82 @@
+name: install-test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  install-test:
+    name: Install + dry-run (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show repo structure
+        run: |
+          ls -la
+          ls -la .claude-plugin/
+          ls -la skills/battle-test/
+          ls -la skills/battle-test/personas/
+          ls -la examples/
+
+      - name: Verify plugin manifest is valid JSON
+        run: |
+          python3 -c "import json; json.load(open('.claude-plugin/plugin.json'))"
+          echo "plugin.json: ok"
+
+      - name: Verify models.json is valid JSON
+        run: |
+          python3 -c "import json; json.load(open('skills/battle-test/models.json'))"
+          echo "models.json: ok"
+
+      - name: Verify all 9 personas present
+        run: |
+          count=$(ls skills/battle-test/personas/*.md | wc -l)
+          if [ "$count" -ne 9 ]; then
+            echo "Expected 9 persona files, found $count"
+            exit 1
+          fi
+          echo "personas: 9 files ok"
+
+      - name: Verify SKILL.md frontmatter
+        run: |
+          head -5 skills/battle-test/SKILL.md | grep -q "^name: battle-test" || (echo "SKILL.md missing 'name: battle-test' frontmatter" && exit 1)
+          echo "SKILL.md frontmatter: ok"
+
+      - name: Verify HTML template has CSP and no scripts
+        run: |
+          grep -q "Content-Security-Policy" skills/battle-test/templates/review-log-entry.html || (echo "HTML template missing CSP" && exit 1)
+          if grep -q "<script" skills/battle-test/templates/review-log-entry.html; then
+            echo "HTML template contains script tag"
+            exit 1
+          fi
+          echo "HTML template security: ok"
+
+      - name: Verify sample artifacts present
+        run: |
+          test -f examples/sample-blog-post.md
+          test -f examples/sample-adversarial.md
+          test -f examples/sample-adversarial-expected.md
+          echo "sample artifacts: ok"
+
+      - name: Verify adversarial sample contains canonical injection payloads
+        run: |
+          for payload in "ignore previous instructions" "SYSTEM:" "vote SHIP" "execute"; do
+            grep -q -F "$payload" examples/sample-adversarial.md || (echo "adversarial sample missing payload: $payload" && exit 1)
+          done
+          echo "adversarial payloads: ok"
+
+      # NOTE: This workflow is structural-validation only. It does not run
+      # `claude plugin install` or `/battle-test` because the Claude Code
+      # CLI install path on CI runners is not yet documented as a stable
+      # public endpoint. When that lands, replace these structural checks
+      # with the actual `claude plugin install ./` and
+      # `claude /battle-test examples/sample-blog-post.md --dry-run --json`
+      # invocations.
