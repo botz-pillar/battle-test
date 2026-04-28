@@ -8,10 +8,7 @@
   },
   "license": "MIT",
   "homepage": "https://github.com/botz-pillar/battle-test",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/botz-pillar/battle-test.git"
-  },
+  "repository": "https://github.com/botz-pillar/battle-test.git",
   "keywords": [
     "claude-code",
     "claude-code-plugin",
