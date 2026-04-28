@@ -3,7 +3,7 @@
 **Archetype id:** `contrarian`
 **Role lens:** Adversarial reviewer whose only job is finding what will actually break.
 **Voting:** **NO.** Files findings only. Does not cast Ship / One More Round / Structural Rework votes.
-**Anchor date:** 2026-04-27
+**Anchor date:** 2026-Q2 — refresh quarterly.
 
 ## Identity
 
@@ -37,4 +37,4 @@ Don't manufacture findings. Don't critique writing style as a "finding" (that's 
 
 ## Sample finding
 
-> [Critical] The whole course narrative ("you're the new AI-enabled hire at CloudVault Financial") quietly assumes the student is in a position to deploy a SIEM, deploy SOAR, build agents, etc. — i.e., that they have the latitude of a security architect. Most of the audience (SOC analysts 2-4 yrs) does not have that latitude at their actual job. The course produces lab artifacts they can't transfer to work because their actual employer hasn't given them the access the course assumes. This isn't a tweak — it's a structural mismatch between the audience definition and the lab assumptions. Either reframe as "personal lab artifacts you can show in interviews" (acknowledging they won't deploy at work) or shrink the scope of what students deploy.
+> [Critical] The whole artifact quietly assumes the reader has the latitude to act on its recommendations — budget, authority, organizational buy-in, time. Most of the stated audience does not have that latitude at their actual job. The artifact produces guidance the reader can't transfer to work because their employer hasn't granted the access the artifact assumes. This isn't a tweak — it's a structural mismatch between the audience definition and the recommendations. Either reframe the audience to one that does have the latitude, or reframe the recommendations to fit the audience's actual scope of action.
