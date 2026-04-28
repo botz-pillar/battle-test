@@ -10,7 +10,9 @@ A Claude Code skill that runs a council of personas over any artifact before you
 
 `battle-test` is a Claude Code skill. Point it at any artifact — a blog draft, a lab plan, an architecture proposal, a contract section, anything you'd want a second opinion on — and it dispatches nine personas in parallel. Each one reads the artifact through their own lens, files findings tagged Critical / Material / Polish, and votes Ship / One More Round / Structural Rework. The votes don't always agree; the gate decides anyway. You get a markdown review log and an HTML report in about 60 seconds.
 
-<!-- assets/launch-video.mp4 will be embedded here once rendered -->
+https://github.com/botz-pillar/battle-test/raw/main/assets/launch-video.mp4
+
+> *90-second explainer. The recursive moment is real — battle-test refused to ship its own README on the first pass.*
 
 ## Why this exists / what skills are for
 
