@@ -140,4 +140,4 @@ No GitHub Action. No SaaS. No community persona-pack contribution structure — 
 
 ## License + author
 
-MIT. Maintained by [Josh Botz](https://github.com/botz-pillar) (Pillar Security).
+MIT. Maintained by [Josh Botz](https://www.linkedin.com/in/joshthebotz/) (Pillar Security).
