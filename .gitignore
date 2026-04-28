@@ -1,0 +1,8 @@
+.DS_Store
+battle-test-logs/
+.claude/
+node_modules/
+*.swp
+*.swo
+.idea/
+.vscode/
