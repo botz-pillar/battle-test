@@ -19,8 +19,11 @@ This repo is also a worked example of a Claude Code *skill*. If you've found you
 ## Install
 
 ```
-claude plugin install botz-pillar/battle-test
+claude plugin marketplace add botz-pillar/battle-test
+claude plugin install battle-test@battle-test
 ```
+
+(Claude Code installs plugins via marketplaces. The first command adds this repo as a single-plugin marketplace; the second installs the skill from it.)
 
 > **Before running on your own artifacts, see [Data flow & sub-processors](#data-flow--sub-processors) below.**
 
