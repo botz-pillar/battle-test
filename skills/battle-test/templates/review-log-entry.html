@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<!--
+  battle-test review log entry template
+  ====================================
+
+  This file is consumed by the synthesis pass of the battle-test skill.
+  It is a self-contained HTML document with no external dependencies, no
+  scripting elements, and a strict CSP meta tag. The orchestrator
+  performs `{{placeholder}}` substitution and is REQUIRED to HTML-entity
+  escape every string interpolation EXCEPT where explicitly noted as
+  "SAFE: orchestrator-controlled" (these are pre-validated enums, integer
+  counters, or pre-built HTML fragments whose interior strings were
+  already escaped at construction time).
+
+  Escape contract: `&` `<` `>` `"` `'` -> `&amp; &lt; &gt; &quot; &#x27;`
+
+  PLACEHOLDER INVENTORY
+  ---------------------
+  Header / banner
+    {{VERDICT_TEXT}}              ESCAPED   "SHIP" | "ONE MORE ROUND" | "STRUCTURAL REWORK"
+    {{VERDICT_CLASS}}             SAFE      enum: ship | one-more-round | structural-rework
+    {{ARTIFACT_STEM}}             ESCAPED   filename stem, used in <title> and header
+    {{ARTIFACT_PATH}}             ESCAPED   full path (informational only, no link)
+    {{STAGE}}                     ESCAPED   outline | draft | full-lesson | lab-plan | ...
+    {{TIER}}                      ESCAPED   gate | iterate
+    {{TIMESTAMP}}                 ESCAPED   ISO 8601 string
+
+  Severity counters (top-of-page summary)
+    {{TOTAL_CRITICAL}}            SAFE      integer (validated by orchestrator)
+    {{TOTAL_MATERIAL}}            SAFE      integer
+    {{TOTAL_POLISH}}              SAFE      integer
+
+  Vote tally
+    {{VOTE_BADGES}}               SAFE      pre-built <span> fragments; interior strings escaped at construction
+
+  Anti-slop callouts
+    {{ANTI_SLOP_QUOTES}}          SAFE      pre-built <blockquote> fragments; quote text ESCAPED at construction
+
+  Council headline
+    {{HEADLINE_AGREES}}           ESCAPED
+    {{HEADLINE_CLASHES}}          ESCAPED
+    {{HEADLINE_BLIND_SPOTS}}      ESCAPED
+    {{HEADLINE_RECOMMENDATION}}   ESCAPED
+
+  Per-persona cards
+    {{PERSONA_CARDS}}             SAFE      pre-built <details> fragments; all interior strings ESCAPED
+
+  Footer / provenance
+    {{GIT_SHA}}                   ESCAPED
+    {{DIRTY}}                     ESCAPED   "true" | "false"
+    {{BLOB_SHA}}                  ESCAPED
+    {{CONTENT_SHA256}}            ESCAPED
+    {{ATTESTATION}}               ESCAPED
+    {{MODELS_JSON_SHA}}           ESCAPED
+    {{COST_ESTIMATED}}            ESCAPED   formatted USD string, e.g. "$0.42"
+    {{COST_ACTUAL}}               ESCAPED   formatted USD string
+
+  CONSTRAINTS
+  -----------
+  - No scripting elements anywhere (no script/iframe/object/embed)
+  - No external resources (fonts, images, CSS)
+  - No <a href> rendering URLs from artifact content
+  - No <img> at all
+  - No style="" attributes on interpolated content
+  - Print-friendly via @media print
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
+  <meta name="referrer" content="no-referrer">
+  <title>battle-test review &mdash; {{ARTIFACT_STEM}}</title> <!-- ESCAPED -->
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --bg-card: #131826;
+      --border: #1f2937;
+      --text: #e5e7eb;
+      --text-dim: #9ca3af;
+      --critical: #ef4444;
+      --material: #f59e0b;
+      --polish: #facc15;
+      --strength: #10b981;
+      --accent: #a78bfa;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+
+    code, kbd, samp, .mono {
+      font-family: "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.9em;
+    }
+
+    h1, h2, h3, h4 {
+      color: var(--text);
+      margin: 0 0 12px;
+      line-height: 1.25;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      margin-top: 32px;
+    }
+
+    h3 { font-size: 1rem; color: var(--accent); }
+
+    /* ---------- Verdict banner ---------- */
+    .verdict {
+      border-radius: 10px;
+      padding: 28px 24px;
+      margin-bottom: 24px;
+      text-align: center;
+      border: 2px solid var(--border);
+      background: var(--bg-card);
+    }
+    .verdict-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+    }
+    .verdict-text {
+      font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .verdict.verdict-ship       { border-color: #10b981; }
+    .verdict.verdict-ship       .verdict-text { color: #10b981; }
+    .verdict.verdict-one-more-round { border-color: #f59e0b; }
+    .verdict.verdict-one-more-round .verdict-text { color: #f59e0b; }
+    .verdict.verdict-structural-rework { border-color: #ef4444; }
+    .verdict.verdict-structural-rework .verdict-text { color: #ef4444; }
+
+    /* ---------- Provenance pills ---------- */
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+      font-size: 0.78rem;
+    }
+    .pill .k { color: var(--accent); }
+    .pill .v { color: var(--text); }
+
+    /* ---------- Severity counters ---------- */
+    .counters {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .counter {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+    .counter .n {
+      display: block;
+      font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    .counter .lbl {
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .counter.crit { border-color: var(--critical); }
+    .counter.crit .n { color: var(--critical); }
+    .counter.mat  { border-color: var(--material); }
+    .counter.mat  .n { color: var(--material); }
+    .counter.pol  { border-color: var(--polish); }
+    .counter.pol  .n { color: var(--polish); }
+
+    /* ---------- Vote tally ---------- */
+    .votes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    /* ---------- Anti-slop ---------- */
+    .anti-slop {
+      background: var(--bg-card);
+      border: 1px solid var(--critical);
+      border-left: 4px solid var(--critical);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 24px;
+    }
+    .anti-slop h2 {
+      color: var(--critical);
+      border-bottom-color: rgba(239, 68, 68, 0.3);
+      margin-top: 0;
+    }
+    .anti-slop blockquote {
+      margin: 12px 0;
+      padding: 8px 14px;
+      border-left: 3px solid var(--critical);
+      color: var(--text);
+      background: rgba(239, 68, 68, 0.06);
+      font-style: italic;
+    }
+    .anti-slop blockquote cite {
+      display: block;
+      margin-top: 6px;
+      font-style: normal;
+      color: var(--text-dim);
+      font-size: 0.85em;
+    }
+
+    /* ---------- Council headline ---------- */
+    .headline {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .headline-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 18px;
+    }
+    .headline-block.full { grid-column: 1 / -1; }
+    .headline-block h3 {
+      margin: 0 0 8px;
+      font-size: 0.78rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .headline-block p { margin: 0; white-space: pre-wrap; }
+
+    /* ---------- Persona cards ---------- */
+    .persona-cards { display: flex; flex-direction: column; gap: 10px; }
+
+    /* Styles for orchestrator-emitted <details> blocks. The orchestrator
+       MUST emit elements with these classes. Interior strings ESCAPED. */
+    details.persona-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0;
+      overflow: hidden;
+    }
+    details.persona-card > summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-weight: 600;
+    }
+    details.persona-card > summary::-webkit-details-marker { display: none; }
+    details.persona-card[open] > summary { border-bottom: 1px solid var(--border); }
+    details.persona-card .body { padding: 14px 18px 18px; }
+    details.persona-card .persona-role {
+      color: var(--text-dim);
+      font-weight: 400;
+      font-size: 0.9em;
+    }
+    details.persona-card h4 {
+      margin: 14px 0 6px;
+      font-size: 0.78rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    details.persona-card ul { margin: 4px 0 8px; padding-left: 22px; }
+    details.persona-card blockquote {
+      margin: 8px 0 0;
+      padding: 8px 14px;
+      border-left: 3px solid var(--critical);
+      color: var(--text);
+      background: rgba(239, 68, 68, 0.06);
+      font-style: italic;
+    }
+
+    /* ---------- Badges (used in vote tally + per-card findings) ---------- */
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: var(--bg);
+    }
+    .badge.vote-ship       { color: var(--strength); border-color: var(--strength); }
+    .badge.vote-one-more-round { color: var(--material); border-color: var(--material); }
+    .badge.vote-structural-rework { color: var(--critical); border-color: var(--critical); }
+    .badge.sev-critical { color: var(--critical); border-color: var(--critical); }
+    .badge.sev-material { color: var(--material); border-color: var(--material); }
+    .badge.sev-polish   { color: var(--polish);   border-color: var(--polish); }
+    .badge.sev-strength { color: var(--strength); border-color: var(--strength); }
+
+    /* ---------- Footer ---------- */
+    footer {
+      margin-top: 48px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 0.82rem;
+    }
+    footer .prov {
+      font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+      word-break: break-all;
+      margin-bottom: 8px;
+    }
+    footer .disclaimer { font-style: italic; margin-bottom: 6px; }
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dotted var(--accent);
+    }
+
+    /* ---------- Print ---------- */
+    @media print {
+      :root {
+        --bg: #ffffff;
+        --bg-card: #ffffff;
+        --border: #d1d5db;
+        --text: #000000;
+        --text-dim: #374151;
+      }
+      html, body { background: #ffffff; color: #000000; }
+      .wrap { max-width: none; padding: 12px; }
+      .verdict, .counter, .pill, .anti-slop, .headline-block,
+      details.persona-card { box-shadow: none; }
+      details.persona-card { page-break-inside: avoid; }
+      details.persona-card[open], details.persona-card { /* force-open in print */ }
+      details > summary { list-style: none; }
+      details:not([open]) > *:not(summary) { display: revert !important; }
+      details { /* Browsers that honor this will render contents in print */ }
+      a { color: #000000; }
+    }
+    /* Force-open <details> for print where supported */
+    @media print {
+      details.persona-card > .body { display: block !important; }
+      details.persona-card { border: 1px solid #d1d5db !important; }
+    }
+
+    @media (max-width: 640px) {
+      .headline { grid-template-columns: 1fr; }
+      .counters { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- ============ VERDICT BANNER ============ -->
+    <!-- VERDICT_CLASS: SAFE (enum, validated upstream); VERDICT_TEXT: ESCAPED -->
+    <section class="verdict verdict-{{VERDICT_CLASS}}" aria-label="Verdict">
+      <div class="verdict-label">battle-test verdict</div>
+      <div class="verdict-text">{{VERDICT_TEXT}}</div> <!-- ESCAPED -->
+    </section>
+
+    <!-- ============ PROVENANCE META STRIP ============ -->
+    <div class="pills" aria-label="Run metadata">
+      <span class="pill"><span class="k">artifact</span><span class="v">{{ARTIFACT_PATH}}</span></span>     <!-- ESCAPED -->
+      <span class="pill"><span class="k">stage</span><span class="v">{{STAGE}}</span></span>                <!-- ESCAPED -->
+      <span class="pill"><span class="k">tier</span><span class="v">{{TIER}}</span></span>                  <!-- ESCAPED -->
+      <span class="pill"><span class="k">ts</span><span class="v">{{TIMESTAMP}}</span></span>               <!-- ESCAPED -->
+      <span class="pill"><span class="k">git</span><span class="v">{{GIT_SHA}} (dirty={{DIRTY}})</span></span> <!-- ESCAPED, ESCAPED -->
+    </div>
+
+    <!-- ============ SEVERITY COUNTERS ============ -->
+    <section class="counters" aria-label="Finding totals across all personas">
+      <div class="counter crit">
+        <span class="n">{{TOTAL_CRITICAL}}</span> <!-- SAFE: integer, validated upstream -->
+        <span class="lbl">Critical</span>
+      </div>
+      <div class="counter mat">
+        <span class="n">{{TOTAL_MATERIAL}}</span> <!-- SAFE: integer, validated upstream -->
+        <span class="lbl">Material</span>
+      </div>
+      <div class="counter pol">
+        <span class="n">{{TOTAL_POLISH}}</span> <!-- SAFE: integer, validated upstream -->
+        <span class="lbl">Polish</span>
+      </div>
+    </section>
+
+    <!-- ============ VOTE TALLY ============ -->
+    <h2>Vote tally</h2>
+    <div class="votes" aria-label="Persona votes">
+      {{VOTE_BADGES}} <!-- SAFE: orchestrator-controlled (pre-built <span class="badge vote-..."> fragments; interior strings ESCAPED at construction) -->
+    </div>
+
+    <!-- ============ ANTI-SLOP CALLOUTS ============ -->
+    <section class="anti-slop" aria-label="Anti-slop callouts">
+      <h2>Anti-slop callouts</h2>
+      {{ANTI_SLOP_QUOTES}} <!-- SAFE: orchestrator-controlled (pre-built <blockquote> per persona; quote text ESCAPED at construction) -->
+    </section>
+
+    <!-- ============ COUNCIL HEADLINE ============ -->
+    <h2>Council headline</h2>
+    <div class="headline">
+      <div class="headline-block">
+        <h3>Where the council agrees</h3>
+        <p>{{HEADLINE_AGREES}}</p> <!-- ESCAPED -->
+      </div>
+      <div class="headline-block">
+        <h3>Where they clash</h3>
+        <p>{{HEADLINE_CLASHES}}</p> <!-- ESCAPED -->
+      </div>
+      <div class="headline-block">
+        <h3>Blind spots</h3>
+        <p>{{HEADLINE_BLIND_SPOTS}}</p> <!-- ESCAPED -->
+      </div>
+      <div class="headline-block full">
+        <h3>Recommendation</h3>
+        <p>{{HEADLINE_RECOMMENDATION}}</p> <!-- ESCAPED -->
+      </div>
+    </div>
+
+    <!-- ============ PER-PERSONA CARDS ============ -->
+    <h2>Per-persona findings</h2>
+    <div class="persona-cards">
+      {{PERSONA_CARDS}} <!-- SAFE: orchestrator-controlled (pre-built <details class="persona-card"> per persona; all interior strings ESCAPED at construction) -->
+    </div>
+
+    <!-- ============ FOOTER ============ -->
+    <footer>
+      <div class="prov">
+        git_sha={{GIT_SHA}} (dirty={{DIRTY}}) &middot; blob_sha={{BLOB_SHA}} &middot; content_sha256={{CONTENT_SHA256}} &middot; attestation={{ATTESTATION}} &middot; models_json_sha={{MODELS_JSON_SHA}} &middot; cost_estimated={{COST_ESTIMATED}} &middot; cost_actual={{COST_ACTUAL}}
+        <!-- ALL ESCAPED: GIT_SHA, DIRTY, BLOB_SHA, CONTENT_SHA256, ATTESTATION, MODELS_JSON_SHA, COST_ESTIMATED, COST_ACTUAL -->
+      </div>
+      <div class="disclaimer">Informational artifact. Not a compliance control.</div>
+      <div>
+        Generated by <a href="https://github.com/botzpillar/battle-test" rel="noopener noreferrer">github.com/botzpillar/battle-test</a> <!-- SAFE: hardcoded -->
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>
