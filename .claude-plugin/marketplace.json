@@ -1,0 +1,25 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "battle-test",
+  "description": "battle-test — A Claude Code skill that runs a council of personas over any artifact before you commit to it.",
+  "owner": {
+    "name": "Josh Botz",
+    "url": "https://github.com/botz-pillar"
+  },
+  "plugins": [
+    {
+      "name": "battle-test",
+      "description": "A Claude Code skill that runs a council of personas (target audience, domain practitioner, AI-security researcher, instructional designer, copywriter, policy/risk reviewer, audience skeptic, future-self, contrarian) over any artifact in parallel, files findings tagged Critical / Material / Polish, and computes a deterministic Ship / One More Round / Structural Rework verdict. Emits markdown log + self-contained HTML report.",
+      "author": {
+        "name": "Josh Botz",
+        "url": "https://github.com/botz-pillar"
+      },
+      "category": "developer-tools",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/botz-pillar/battle-test.git"
+      },
+      "homepage": "https://github.com/botz-pillar/battle-test"
+    }
+  ]
+}
