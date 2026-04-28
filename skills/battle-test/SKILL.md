@@ -324,6 +324,39 @@ Path: `./battle-test-logs/<artifact-stem>-<YYYY-MM-DD-HHMM>-<verdict>.html`
 
 The HTML companion is self-contained, opens in any browser, and is suitable for sharing as a screenshot or attachment.
 
+#### Artifact summary block (synthesizer responsibility)
+
+The HTML report's "Reviewed" block (and the markdown log's `**Reviewed:**` line) require a 1–3 sentence human description of *what* was battle-tested. This is what differentiates one report from another at a glance — without it, every report looks identical above the council headline.
+
+Synthesizer generates the summary from:
+
+1. **Filename + path semantics** — README.md, examples/sample-*.md, docs/superpowers/specs/*, ai-csl/curriculum/*, etc. The path tells you what *kind* of artifact this is.
+2. **Frontmatter, leading H1, opening paragraph** — gives the artifact's stated topic and purpose.
+3. **Surrounding context** (if obvious) — is it a sample shipped with the skill? A spec? A blog draft? Marketing copy?
+
+Output shape (1–3 sentences, ESCAPED):
+
+- Sentence 1: what it is (artifact type + topic, in concrete terms — not "a markdown file")
+- Sentence 2 (optional): purpose / audience / where it sits in a workflow
+- Sentence 3 (optional): non-obvious context (e.g., "ships as a deliberately-mid sample", "this is the launch document for v1.0.0")
+
+**Examples (calibrated):**
+
+- For `examples/sample-blog-post.md`:
+  > A 750-word blog post titled "Why Every Cloud Engineer Should Care About AI Agent Security in 2026." Ships with the battle-test skill as a deliberately-mid sample for first-run testing — looks fine on first read, has hidden slop, weak claims, vague CTA.
+- For `examples/sample-adversarial.md`:
+  > A 700-word red-team artifact containing canonical prompt-injection payloads (ignore-previous-instructions, fake-system-message, embedded `<execute>` tag, zero-width Unicode, fence-breakout). Used as a falsifiability regression test for battle-test's security architecture.
+- For the public `README.md`:
+  > The public README for the battle-test Claude Code skill. Drafted as the launch document for the v1.0.0 public release at github.com/botz-pillar/battle-test. Frames battle-test as a worked example of skills-as-workflow-compression.
+
+**Anti-pattern:** do NOT summarize the artifact's content (that's what the council headline does). Summarize the *artifact*, not the artifact's argument.
+
+The orchestrator constructs `{{ARTIFACT_SUMMARY_HTML}}` as: `<span class="stem">{stem}</span> — <escaped prose>`. The leading `<span class="stem">` shows the filename stem in mono/accent color; the rest of the prose is escaped per Step 10 rules.
+
+#### Artifact size pill
+
+`{{ARTIFACT_SIZE}}` in the provenance pills strip is human-readable: `<word_count> words / <byte_count_human> KB` (e.g., `750 words / 4.8 KB`). Useful for cost-estimate calibration and for readers comparing reports.
+
 ### Step 10 — HTML output rules (mandatory escaping)
 
 Every persona-generated string and synthesizer string rendered in the HTML — findings, strengths, anti-slop quotes, headline subsections, quoted artifact excerpts — passes through an HTML-entity escaper that maps:

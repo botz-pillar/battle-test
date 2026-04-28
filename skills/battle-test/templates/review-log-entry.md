@@ -1,7 +1,10 @@
 
 ## Review — {{datetime}} — stage:{{stage}} tier:{{tier}}
 
-**Artifact:** [{{artifact_path}}]({{artifact_path}})
+**Artifact:** [{{artifact_path}}]({{artifact_path}}) ({{artifact_size}})
+
+**Reviewed:** {{artifact_summary}}
+
 **Personas:** {{personas_list}}
 **Verdict:** **{{verdict}}**
 **Findings:** Critical: {{critical_count}} · Material: {{material_count}} · Polish: {{polish_count}}

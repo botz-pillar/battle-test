@@ -1,4 +1,4 @@
-<!-- assets/readme-banner.png will be inserted here once rendered -->
+![battle-test](assets/readme-banner.png)
 
 # battle-test
 
@@ -127,7 +127,8 @@ The synthesizer (which combines persona outputs into the verdict) gets the same 
 ## Known limitations
 
 - **Indirect prompt injection.** A poisoned artifact can shift persona behavior. The kit's defenses (least-privilege subagents, input fencing, output escaping, falsifiable testing) limit blast radius and make regressions detectable, but do not absolutely prevent a sophisticated injection from biasing findings. Treat third-party content with appropriate skepticism. Defense-in-depth: read the artifact yourself before handing it to any AI tool.
-- **Persona drift across model versions.** Personas are calibrated against `claude-sonnet-4-6` (default) and `claude-opus-4-7`. When the model versions change, persona behavior may shift. The CHANGELOG tracks the reference baseline.
+- **Persona drift across model versions.** Personas are calibrated against the model IDs and rates pinned in [`skills/battle-test/models.json`](skills/battle-test/models.json) (with a `rates_as_of` date). When the underlying model versions change, persona behavior may shift. Bump `models.json` and the CHANGELOG when you re-verify.
+- **Severity tags are LLM-self-assigned.** Each persona tags its own findings Critical / Material / Polish. There is no external calibration rubric — a persona that is over-cautious or over-permissive will skew the counts that the gate function then treats as deterministic. The mechanical verdict closes the prose-laundering channel; it does not close the severity-laundering channel one column over. Treat verdicts as decision support, not adjudication.
 - **English-only tuning.** Personas work on non-English artifacts but are calibrated against English. Results on other languages will be uneven.
 - **Run-to-run variance.** LLM votes are stochastic. The gate is deterministic given the votes, but the votes themselves can shift slightly between runs.
 
