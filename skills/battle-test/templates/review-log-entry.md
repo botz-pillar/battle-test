@@ -2,7 +2,6 @@
 ## Review — {{datetime}} — stage:{{stage}} tier:{{tier}}
 
 **Artifact:** [{{artifact_path}}]({{artifact_path}})
-**Artifact-hash:** {{artifact_hash}}
 **Personas:** {{personas_list}}
 **Verdict:** **{{verdict}}**
 **Findings:** Critical: {{critical_count}} · Material: {{material_count}} · Polish: {{polish_count}}
@@ -30,13 +29,19 @@
 
 </details>
 
-### Josh's call
+### Your call
 
-_Filled in by Josh after reading. Format:_
+_Filled in by the artifact owner after reading. Format:_
 
 - **Findings accepted:** _(list which findings you'll fix; reference by severity + persona)_
 - **Findings dismissed:** _(list which findings you're rejecting and one-line reason — these will not resurface in future runs)_
 - **Decision:** ship now / revise this iteration / structural rework
 - **Next action:** _(what you do next — e.g., "fix the two Material findings, re-run /battle-test, then publish")_
+
+---
+
+**Provenance:** git_sha=`{{git_sha}}` (dirty=`{{dirty}}`) · blob_sha=`{{blob_sha}}` · content_sha256=`{{content_sha256}}` · attestation=`{{attestation}}` · models_json_sha=`{{models_json_sha}}` · cost_estimated=`{{cost_estimated}}` · cost_actual=`{{cost_actual}}`
+
+> _Informational artifact. Not a compliance control._
 
 ---

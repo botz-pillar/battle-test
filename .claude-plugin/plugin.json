@@ -1,0 +1,26 @@
+{
+  "name": "battle-test",
+  "version": "1.0.0",
+  "description": "A Claude Code skill that runs a council of personas over any artifact before you commit to it.",
+  "author": {
+    "name": "Josh Botz",
+    "url": "https://github.com/botzpillar"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/botzpillar/battle-test",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/botzpillar/battle-test.git"
+  },
+  "keywords": [
+    "claude-code",
+    "claude-code-plugin",
+    "claude-code-skill",
+    "developer-tools",
+    "ai-agents",
+    "prompt-engineering",
+    "editorial-tooling",
+    "ai-security",
+    "anti-slop"
+  ]
+}

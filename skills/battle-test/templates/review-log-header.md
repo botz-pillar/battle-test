@@ -1,9 +1,8 @@
-# {{course_name}} — Battle-Test Review Log
+# {{artifact_stem}} — Battle-Test Review Log
 
-> Append-only log of `/battle-test` runs against this course's artifacts. Each entry has a 200–300-word headline at the top — that's what Josh reads. Per-persona detail is collapsed below. Each entry ends with **Josh's call** — Josh fills that in after reading; future battle-test runs read prior calls so dismissed findings don't resurface.
+> Append-only log of `/battle-test` runs against this artifact. Each entry has a headline at the top — that's what you read. Per-persona detail is collapsed below. Each entry ends with **Your call** — fill that in after reading; future runs read prior calls so dismissed findings don't resurface.
 
-**Course:** {{course_name}}
-**Spec source:** `ai-csl/shared-context/curriculum/curriculum-plan.md`
+**Artifact:** {{artifact_path}}
 **Created:** {{created_date}}
 
 ---
