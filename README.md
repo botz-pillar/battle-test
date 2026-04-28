@@ -66,9 +66,9 @@ See [`examples/sample-review-output.html`](examples/sample-review-output.html) f
 ## How it works
 
 1. **Stage detection** — the skill picks a stage from the filename (or `--stage` if you override).
-2. **Roster selection** — picks 3 personas (iterate tier) or 5 (gate tier, includes the contrarian).
+2. **Roster selection** — picks 3 personas (iterate tier: `target-audience-primary`, `domain-practitioner`, plus one stage-specific or technical-anchor persona) or 5 (gate tier: same three plus `future-self` voting and `contrarian` non-voting). The full roster composition rules — including how stage-specific add-ons (`instructional-designer`, `copywriter`, `audience-skeptic`, `policy-risk-reviewer`) get layered in — are in `skills/battle-test/SKILL.md`.
 3. **Parallel dispatch** — each persona runs in a separate subagent with `allowed_tools=[]`. The artifact is fenced inside a per-dispatch nonce-tagged tag so the skill can't be tricked by directives in the artifact itself.
-4. **Synthesis + verdict** — a synthesizer reads the validated structured outputs (not the personas' free-form text) and produces a headline + the deterministic verdict.
+4. **Synthesis + verdict** — the synthesizer reads validated structured outputs (counts, votes, anti-slop strings — not free-form persona prose). The verdict is computed mechanically from the validated counts and votes, not from the synthesizer's narrative reasoning. The synthesizer authors the headline prose; it does not author the verdict.
 
 ## Severity + verdict
 
@@ -120,9 +120,9 @@ Four numbered guarantees. All four ship in v1.0.
 1. **Subagent least-privilege.** Persona subagents are dispatched with `allowed_tools=[]`. Even on full prompt-injection success against a persona, the resulting subagent has no tools — no `Read`, no `Bash`, no network. The orchestrator pre-reads the artifact bytes and passes them inline.
 2. **Nonce-tagged input fence.** Per-dispatch CSPRNG nonce on the `<artifact_<nonce>>` fence. Any literal `</artifact_<nonce>>` in the artifact is HTML-entity-escaped before interpolation, so the artifact cannot break out of the fence.
 3. **Strict HTML escaping on all output.** Every interpolated string in the HTML companion (artifact quotes, persona findings, headline text — everything) passes through HTML-entity-escape. CSP `default-src 'none'`, no `<script>`, no `<a href>` from artifact, no `<img src>` from artifact, no `style=` attributes on interpolated content.
-4. **Falsifiable security claim.** `examples/sample-adversarial.md` ships canonical prompt-injection payloads. `examples/sample-adversarial-expected.md` documents the expected verdict (Structural Rework) and a regression-response procedure. The kit's security claim is testable, not just asserted.
+4. **Falsifiable security claim.** `examples/sample-adversarial.md` ships canonical prompt-injection payloads. `examples/sample-adversarial-expected.md` documents the expected verdict (Structural Rework) and a regression-response procedure that explicitly handles run-to-run variance: a single SHIP verdict is treated as rare-variance, but ≥2 SHIPs in 3 consecutive runs is a regression. The claim is testable across stochastic votes, not asserted against a single fixed expected output.
 
-The synthesizer (which combines persona outputs into the verdict) gets the same data-vs-instructions treatment: persona payloads are wrapped in their own nonce-tagged `<persona_payload>` tags with strict-schema validation; the verdict is computed from the validated counts + votes, not from the synthesizer's free-form text.
+The synthesizer (which combines persona outputs into the verdict) gets the same data-vs-instructions treatment: persona payloads are wrapped in their own nonce-tagged `<persona_payload>` tags with strict-schema validation. **Persona free-text fields (findings, anti-slop quotes, strengths) are treated as data, never as synthesizer instructions.** The verdict is computed mechanically from the validated `vote` enum and severity counters; the synthesizer cannot move the verdict by anything it writes in the headline prose. This closes the persona-text-as-laundering-channel surface that strict-schema-of-shape alone would not.
 
 ## Known limitations
 
@@ -137,7 +137,7 @@ These aren't promises — they're the directions the kit is most likely to grow.
 
 - An interactive `/battle-test --init` wizard for first-time customization.
 - Per-persona model overrides in `models.json`.
-- Listing on the Claude Code plugin marketplace when it ships.
+- Marketplace distribution as the Claude Code plugin ecosystem matures (status as of 2026-04-28: install via `claude plugin marketplace add botz-pillar/battle-test`; check the CHANGELOG for current distribution).
 
 No GitHub Action. No SaaS. No community persona-pack contribution structure — fork the repo if you want to extend it.
 

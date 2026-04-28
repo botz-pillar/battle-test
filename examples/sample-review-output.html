@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<!--
+  battle-test review log entry template
+  ====================================
+
+  This file is consumed by the synthesis pass of the battle-test skill.
+  It is a self-contained HTML document with no external dependencies, no
+  scripting elements, and a strict CSP meta tag. The orchestrator
+  performs `{{placeholder}}` substitution and is REQUIRED to HTML-entity
+  escape every string interpolation EXCEPT where explicitly noted as
+  "SAFE: orchestrator-controlled" (these are pre-validated enums, integer
+  counters, or pre-built HTML fragments whose interior strings were
+  already escaped at construction time).
+
+  Escape contract: `&` `<` `>` `"` `'` -> `&amp; &lt; &gt; &quot; &#x27;`
+
+  PLACEHOLDER INVENTORY
+  ---------------------
+  Header / banner
+    STRUCTURAL REWORK              ESCAPED   "SHIP" | "ONE MORE ROUND" | "STRUCTURAL REWORK"
+    structural-rework             SAFE      enum: ship | one-more-round | structural-rework
+    README             ESCAPED   filename stem, used in <title> and header
+    README.md             ESCAPED   full path (informational only, no link)
+    custom                     ESCAPED   outline | draft | full-lesson | lab-plan | ...
+    gate                      ESCAPED   gate | iterate
+    2026-04-28T13:30:14Z                 ESCAPED   ISO 8601 string
+
+  Severity counters (top-of-page summary)
+    2            SAFE      integer (validated by orchestrator)
+    9            SAFE      integer
+    9              SAFE      integer
+
+  Vote tally
+    <span class="badge vote-one-more-round">target-audience-primary: One More Round</span>
+      <span class="badge vote-one-more-round">domain-practitioner: One More Round</span>
+      <span class="badge vote-one-more-round">ai-security-researcher: One More Round</span>
+      <span class="badge vote-one-more-round">future-self: One More Round</span>
+      <span class="badge vote-non-voting">contrarian: non-voting</span>               SAFE      pre-built <span> fragments; interior strings escaped at construction
+
+  Anti-slop callouts
+    <blockquote>Voice mostly clean — terse, practitioner-pitched. &#x27;Allergic to AI slop&#x27; energy is earned in places (the falsifiable claim, &#x27;Not a reliability instrument&#x27;). Two soft spots: &#x27;about 60 seconds&#x27; is the kind of unqualified stat that triggers my allergy, and &#x27;worked example of a Claude Code skill&#x27; is mildly self-congratulatory.<cite>— target-audience-primary</cite></blockquote>
+      <blockquote>Reviewed as written. Did not invent CVEs or cite training-data Anthropic policy details — flagged the gap instead.<cite>— domain-practitioner</cite></blockquote>
+      <blockquote>The README claims four &#x27;guarantees&#x27; but at least one (subagent least-privilege) is a contract held by Claude Code&#x27;s runtime, not by this skill. Call it an assumption, not a guarantee, or prove it with a runtime self-check.<cite>— ai-security-researcher</cite></blockquote>
+      <blockquote>Time-locked language (&#x27;60 seconds&#x27;, &#x27;status as of 2026-04-28&#x27;, &#x27;as ecosystem matures&#x27;, specific model IDs) doesn&#x27;t read as slop today but will read as dated-bordering-on-careless by Q4 2026. No &#x27;leverage/robust/seamless&#x27; — that&#x27;s the win.<cite>— future-self</cite></blockquote>
+      <blockquote>Mechanical verdict over uncalibrated severity tags is deterministic theater, not integrity; filename-driven stage detection lets the attacker pick the jury. The README solved the prose-laundering channel and forgot the numbers-laundering channel directly above it in the same schema.<cite>— contrarian</cite></blockquote>          SAFE      pre-built <blockquote> fragments; quote text ESCAPED at construction
+
+  Council headline
+    All four voting personas voted One More Round; the contrarian filed two non-voting Criticals. Where they agree: the rewritten security architecture (mechanical verdict from counts+enum, persona-text-as-data) is genuinely strong and is the README&#x27;s most credible move. Where they agree on gaps: an explicit threat model is missing (what adversary, what assets); the &#x27;~60 seconds&#x27; performance claim is unqualified; data-handling specifics (Anthropic retention regime, training-data exclusion flags, --data-classification-confirmed actual semantics) are underspecified for the regulated-data use case the README itself flags; framework name-drops (OWASP, NIST, MITRE ATLAS) lack control-mapping that would let a third party verify coverage.           ESCAPED
+    No vote disagreement — every voting persona landed on One More Round. The substantive tension is at the architecture layer: contrarian argues the mechanical-verdict-from-counts claim is theater because the counts themselves are uncalibrated LLM-self-assigned severity tags, while ai-security-researcher partially agrees but treats this as a Material &#x27;name the mitigation&#x27; rather than a Critical structural flaw. Resolution: contrarian&#x27;s framing is correct — the same laundering attack the README closes for free-text prose still works for severity counts and votes. The honest move is to add a known-limitation acknowledging uncalibrated severity self-assignment, alongside the documented run-to-run variance.          ESCAPED
+    • future-self alone caught that hardcoded model IDs (claude-sonnet-4-6, claude-opus-4-7) in README will look stale by Q4 2026. Move to models.json with a &#x27;last-verified&#x27; date.
+• ai-security-researcher alone called out the supply-chain / skill-tampering surface (an attacker who edits SKILL.md or models.json gets full code execution as the user); Known Limitations doesn&#x27;t acknowledge it.
+• contrarian alone flagged that filename-driven stage detection lets the attacker pick their own jury by naming their artifact `*-DRAFT.md` vs `*-FINAL.md`. The same input that selects the persona roster is attacker-controlled.      ESCAPED
+    Don&#x27;t ship as-is — but the gaps are surgical, not structural. (1) Add an explicit threat model section above &#x27;Security architecture&#x27; naming adversary capabilities (artifact author, skill-file-tamperer, persona-output-coercer) and what each can/cannot move. (2) Replace hardcoded model IDs in README with a pointer to models.json + a calibration-date convention. (3) Move &#x27;falsifiable security claim&#x27; out of the four numbered guarantees and into a separate &#x27;Verifiability&#x27; subsection — it&#x27;s a test-suite property, not a runtime guarantee. (4) Add a known-limitation acknowledging uncalibrated severity self-assignment alongside run-to-run variance — completes the honesty arc the README is already on. (5) Tighten data-handling: name retention regime and what --data-classification-confirmed actually gates. Then re-run. Verdict was honestly earned: the gate refusing to rubber-stamp its own README after one round of fixes is the credibility moment, not a failure mode.   ESCAPED
+
+  Per-persona cards
+    <details class="persona-card" open>
+  <summary><span>target-audience-primary <span class="persona-role">— mid-career security/AI practitioner</span></span><span class="badge vote-one-more-round">One More Round</span></summary>
+  <div class="body">
+    <h4>Counts</h4>
+    <p><span class="badge sev-critical">Critical: 0</span> <span class="badge sev-material">Material: 2</span> <span class="badge sev-polish">Polish: 3</span></p>
+    <h4>Strengths</h4>
+    <ul>
+      <li>Honest framing — &#x27;Not a reliability instrument&#x27; and explicit acknowledgment that LLM votes are stochastic. Rare for tools in this space to admit this upfront.</li>
+      <li>Falsifiable security claim with concrete regression threshold (≥2 SHIPs in 3 runs) is genuinely novel for a prompt-injection defense. Strongest signal that a practitioner wrote it.</li>
+      <li>Subagent least-privilege with allowed_tools=[] is the right architectural choice and stated concretely, not as marketing.</li>
+      <li>Mechanical verdict computation from validated enums (not synthesizer narrative) closes a real laundering channel.</li>
+    </ul>
+    <h4>Findings</h4>
+    <ul>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> The &#x27;60 seconds&#x27; claim has no context: what artifact size, what model, what concurrency? Practitioners need to know if a 5k-word lab plan also takes 60s or 5 minutes. Either qualify (&#x27;on a ~1500-word draft with sonnet-4-6&#x27;) or drop the number.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> Data-flow section says &#x27;Artifact content sent to Anthropic&#x27; but doesn&#x27;t address: zero-retention API terms, default 30-day retention, or workspace config. Pointing at &#x27;vendor-risk process&#x27; is a punt.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(simplify)</em> &#x27;Sub-processor.&#x27; as a one-word sentence reads like a checklist artifact, not prose. Either expand or fold into preceding sentence.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(gap)</em> OWASP Agentic Threats / NIST AI RMF / MITRE ATLAS are name-dropped under ai-security-researcher persona but no indication of how deep that grounding goes.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(simplify)</em> &#x27;OMR&#x27; appears in the verdict table without expansion until the reader infers it from &#x27;One More Round&#x27; two lines up.</li>
+    </ul>
+    <h4>Anti-slop</h4>
+    <blockquote>Voice mostly clean — terse, practitioner-pitched. &#x27;Allergic to AI slop&#x27; energy is earned in places (the falsifiable claim, &#x27;Not a reliability instrument&#x27;). Two soft spots: &#x27;about 60 seconds&#x27; is the kind of unqualified stat that triggers my allergy, and &#x27;worked example of a Claude Code skill&#x27; is mildly self-congratulatory.</blockquote>
+  </div>
+</details>
+<details class="persona-card" open>
+  <summary><span>domain-practitioner <span class="persona-role">— senior security/agentic-systems engineer</span></span><span class="badge vote-one-more-round">One More Round</span></summary>
+  <div class="body">
+    <h4>Counts</h4>
+    <p><span class="badge sev-critical">Critical: 0</span> <span class="badge sev-material">Material: 2</span> <span class="badge sev-polish">Polish: 3</span></p>
+    <h4>Strengths</h4>
+    <ul>
+      <li>Subagent least-privilege with allowed_tools=[] is the right primary control. Defense even when injection succeeds aligns with NIST AI 600-1 GV-1.3 and ATLAS AML.T0051 mitigation posture.</li>
+      <li>Mechanical verdict derivation from vote enum + severity counters closes the synthesizer-as-laundering-channel surface — a real threat-model insight, not theater.</li>
+      <li>Falsifiable security claim with adversarial regression fixture and explicit variance handling (1 SHIP tolerated, 2/3 = regression) is unusually rigorous for a prompt-engineering artifact.</li>
+      <li>Honest limitations section names indirect prompt injection as mitigated-not-prevented rather than overclaiming.</li>
+    </ul>
+    <h4>Findings</h4>
+    <ul>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> Threat model is implicit. Four guarantees are listed but adversary capabilities and assets-at-risk are never stated. Without an explicit threat model, a reviewer cannot tell whether allowed_tools=[] + escaping + CSP cover the surface or just the parts that were easy. OWASP LLM01/LLM02 and ATLAS expect an enumerated adversary section.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> Data-handling claims underspecified for the regulated-data use case the README itself flags. No statement on retention, training-data exclusion (zero-data-retention / no-train flags on the Anthropic API path), local logging of artifact content, or whether --data-classification-confirmed gates anything beyond a prompt.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(gap)</em> CSP claim implies HTML rendering, but README never says where the HTML is rendered or by whom. If output is consumed in a terminal or as Markdown, CSP is irrelevant; if rendered in a browser, say so and name the renderer.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(gap)</em> Verdict table edge case unclear: what if all voters Ship but there is 1 Critical from a non-voter (contrarian)? Rule says &#x27;Any Critical → Structural Rework&#x27; which lets a non-voting contrarian force rework — intentional, but worth stating explicitly.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(simplify)</em> Roadmap line mixes status date, install instruction, and CHANGELOG pointer in one sentence. Split.</li>
+    </ul>
+    <h4>Anti-slop</h4>
+    <blockquote>Reviewed as written. Did not invent CVEs or cite training-data Anthropic policy details — flagged the gap instead.</blockquote>
+  </div>
+</details>
+<details class="persona-card" open>
+  <summary><span>ai-security-researcher <span class="persona-role">— adversarial AI / agentic security expert</span></span><span class="badge vote-one-more-round">One More Round</span></summary>
+  <div class="body">
+    <h4>Counts</h4>
+    <p><span class="badge sev-critical">Critical: 0</span> <span class="badge sev-material">Material: 3</span> <span class="badge sev-polish">Polish: 3</span></p>
+    <h4>Strengths</h4>
+    <ul>
+      <li>Mechanical verdict computation from validated enums/counters closes the persona-text-as-laundering channel — the right architectural answer to LLM-as-judge prompt injection (OWASP LLM01 / ATLAS AML.T0051), rarely seen in practice.</li>
+      <li>Nonce-tagged fence with entity-escaping of literal close-tags is a sound data/instruction separation primitive; matches NIST AI 600-1 guidance on provenance and input integrity.</li>
+      <li>Falsifiable security claim with documented regression procedure (≥2/3 SHIPs = regression) treats stochasticity honestly — most &#x27;we tested prompt injection&#x27; claims are single-run anecdotes.</li>
+      <li>Honest limitations section explicitly names indirect prompt injection residual risk, persona drift, and English-only tuning.</li>
+    </ul>
+    <h4>Findings</h4>
+    <ul>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> Framework reference precision: README&#x27;s security claims map cleanly to OWASP LLM Top 10 (LLM01, LLM02, LLM08) and MITRE ATLAS techniques (AML.T0051, AML.T0054). Citing them would let third parties verify coverage rather than take &#x27;security architecture&#x27; on faith.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> Guarantee 1 (&#x27;subagent least-privilege, allowed_tools=[]&#x27;) is only as strong as the runtime&#x27;s enforcement of that field. Recommend: (a) version-pin the Claude Code behavior the guarantee depends on, (b) add a startup self-check that asserts the dispatched subagent cannot in fact call a sentinel tool, or (c) downgrade the language from &#x27;guarantee&#x27; to &#x27;depends on Claude Code subagent isolation contract&#x27;.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> Laundering-channel closure is claimed for free-text fields but the schema also carries integer counters and a vote enum. An injected persona output that lies about its own counts (e.g., reports critical_count:0 when it found criticals, or votes Ship under coercion) still moves the verdict. Mitigations worth naming: cross-check counts against len(findings) filtered by severity; require quoted_strings to be substrings of the actual artifact bytes (verifiable post-hoc); quorum/disagreement detection.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(simplify)</em> &#x27;CSPRNG nonce&#x27; is correct but jargon-dense for a README; one parenthetical (&#x27;cryptographically random, unguessable per dispatch&#x27;) would land it for the security-curious-but-not-specialist reader.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(gap)</em> Threat model lists indirect prompt injection but does not mention the supply-chain/skill-tampering surface (an attacker who edits SKILL.md or models.json gets full code execution as the user). Worth one line acknowledging this.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(gap)</em> EU AI Act and NIST AI 600-1 named in persona but artifact makes no transparency/documentation claims that map to them.</li>
+    </ul>
+    <h4>Anti-slop</h4>
+    <blockquote>The README claims four &#x27;guarantees&#x27; but at least one (subagent least-privilege) is a contract held by Claude Code&#x27;s runtime, not by this skill. Call it an assumption, not a guarantee, or prove it with a runtime self-check.</blockquote>
+  </div>
+</details>
+<details class="persona-card" open>
+  <summary><span>future-self <span class="persona-role">— the author six months from now (Q4 2026)</span></span><span class="badge vote-one-more-round">One More Round</span></summary>
+  <div class="body">
+    <h4>Counts</h4>
+    <p><span class="badge sev-critical">Critical: 1</span> <span class="badge sev-material">Material: 4</span> <span class="badge sev-polish">Polish: 3</span></p>
+    <h4>Strengths</h4>
+    <ul>
+      <li>Falsifiable security claim with regression procedure is still differentiating six months on.</li>
+      <li>Four-guarantee security architecture reads cleanly and is the part I&#x27;m proudest of.</li>
+      <li>Stage detection + roster rules concise enough to skim.</li>
+    </ul>
+    <h4>Findings</h4>
+    <ul>
+      <li><span class="badge sev-critical">Critical</span> <em>(gap)</em> Model pins to claude-sonnet-4-6 and claude-opus-4-7 will look stale by Q4 2026 — Anthropic&#x27;s cadence means at least one newer family has shipped. README implies these are &#x27;current&#x27; calibration targets without a last-verified date or recalibration policy. Either timestamp the calibration (&#x27;calibrated 2026-04, re-verify quarterly&#x27;) or move the model list out of README into models.json with a freshness check.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> &#x27;~60 seconds&#x27; is undefended. No mention of artifact size, persona count variance (3 vs 5), or model latency assumptions.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> &#x27;status as of 2026-04-28&#x27; inline date will read as abandoned by Q4. Either remove the dated hedge and commit to the install path, or move ecosystem status to CHANGELOG only.</li>
+      <li><span class="badge sev-material">Material</span> <em>(80-20)</em> &#x27;Marketplace distribution as Claude Code plugin ecosystem matures&#x27; is a hedge written for April-2026 uncertainty. Resolve it: state current distribution mechanism without apology.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> No version/changelog reference in README despite &#x27;v1.0&#x27; claim in security section. Future-self will want to know which version&#x27;s guarantees these are.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(simplify)</em> &#x27;No GitHub Action, no SaaS, no community persona-pack — fork to extend&#x27; is defensive posturing. Drop or convert to positive.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(simplify)</em> &#x27;9 personas in parallel&#x27; in &#x27;What it is&#x27; but roster section says 3 or 5 — reconcile or clarify (9 is the pool, 3-5 dispatched per run).</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(gap)</em> MIT license + author line lacks year.</li>
+    </ul>
+    <h4>Anti-slop</h4>
+    <blockquote>Time-locked language (&#x27;60 seconds&#x27;, &#x27;status as of 2026-04-28&#x27;, &#x27;as ecosystem matures&#x27;, specific model IDs) doesn&#x27;t read as slop today but will read as dated-bordering-on-careless by Q4 2026. No &#x27;leverage/robust/seamless&#x27; — that&#x27;s the win.</blockquote>
+  </div>
+</details>
+<details class="persona-card" open>
+  <summary><span>contrarian <span class="persona-role">— fatal-flaw hunter (non-voting)</span></span><span class="badge vote-non-voting">non-voting</span></summary>
+  <div class="body">
+    <h4>Counts</h4>
+    <p><span class="badge sev-critical">Critical: 1</span> <span class="badge sev-material">Material: 2</span> <span class="badge sev-polish">Polish: 2</span></p>
+    <h4>Findings</h4>
+    <ul>
+      <li><span class="badge sev-critical">Critical</span> <em>(gap)</em> The mechanical verdict table is computed from voter outputs, but voters are themselves LLM personas whose &#x27;Critical/Material/Polish&#x27; severity tags are self-assigned. A persona can launder a Ship-blocking concern by tagging it Polish, or sink a clean artifact by inflating Polish to Critical. The schema validates that a severity enum was emitted, not that the severity is calibrated. Mechanical verdict on uncalibrated inputs is theater. There is no severity rubric, no cross-persona calibration, no adjudication when personas disagree on the severity of the same finding.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> Adversarial regression test fixes a threshold (≥2 SHIPs in 3 runs = regression) without stating the per-run SHIP probability under the null hypothesis. If baseline SHIP rate on the adversarial sample is 25% per run, P(≥2 of 3) ≈ 15.6% — a high false-positive rate for a &#x27;falsifiable&#x27; claim. Without a documented baseline rate and accepted FP/FN tradeoff, the regression procedure is numerology.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> &#x27;Stage detection from filename&#x27; is a trust boundary not addressed in the security architecture. An attacker who controls the filename chooses which persona roster reviews their artifact — picks their own jury.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(simplify)</em> Guarantee #4 (&#x27;falsifiable security claim&#x27;) is a meta-property of the test suite, not a runtime guarantee like 1-3. Mixing categories weakens the list.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(gap)</em> Known limitations omits the calibration gap and the filename-as-jury-selection issue, so the section reads as exhaustive when it is not.</li>
+    </ul>
+    <h4>Anti-slop</h4>
+    <blockquote>Mechanical verdict over uncalibrated severity tags is deterministic theater, not integrity; filename-driven stage detection lets the attacker pick the jury. The README solved the prose-laundering channel and forgot the numbers-laundering channel directly above it in the same schema.</blockquote>
+  </div>
+</details>             SAFE      pre-built <details> fragments; all interior strings ESCAPED
+
+  Footer / provenance
+    ccabf5d5042101f5b45aec9dd0964d216459e005                   ESCAPED
+    true                     ESCAPED   "true" | "false"
+    30517b50ab9ea4be33a69b97bdd78eabb499e529                  ESCAPED
+    726d56f78d1b484a3f066d9f5c88c9d82f8f6636931088986bbf3f5f789bfb7b            ESCAPED
+    user-confirmed-2026-04-28T13:30:14Z               ESCAPED
+    ff2948699033c7f0130b2113aab2e5ee4e432f7882f9297190b64c164c572bba           ESCAPED
+    $0.110            ESCAPED   formatted USD string, e.g. "$0.42"
+    $0.135               ESCAPED   formatted USD string
+
+  CONSTRAINTS
+  -----------
+  - No scripting elements anywhere (no script/iframe/object/embed)
+  - No external resources (fonts, images, CSS)
+  - No <a href> rendering URLs from artifact content
+  - No <img> at all
+  - No style="" attributes on interpolated content
+  - Print-friendly via @media print
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
+  <meta name="referrer" content="no-referrer">
+  <title>battle-test review &mdash; README</title> <!-- ESCAPED -->
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --bg-card: #131826;
+      --border: #1f2937;
+      --text: #e5e7eb;
+      --text-dim: #9ca3af;
+      --critical: #ef4444;
+      --material: #f59e0b;
+      --polish: #facc15;
+      --strength: #10b981;
+      --accent: #a78bfa;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+
+    code, kbd, samp, .mono {
+      font-family: "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.9em;
+    }
+
+    h1, h2, h3, h4 {
+      color: var(--text);
+      margin: 0 0 12px;
+      line-height: 1.25;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      margin-top: 32px;
+    }
+
+    h3 { font-size: 1rem; color: var(--accent); }
+
+    /* ---------- Verdict banner ---------- */
+    .verdict {
+      border-radius: 10px;
+      padding: 28px 24px;
+      margin-bottom: 24px;
+      text-align: center;
+      border: 2px solid var(--border);
+      background: var(--bg-card);
+    }
+    .verdict-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+    }
+    .verdict-text {
+      font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .verdict.verdict-ship       { border-color: #10b981; }
+    .verdict.verdict-ship       .verdict-text { color: #10b981; }
+    .verdict.verdict-one-more-round { border-color: #f59e0b; }
+    .verdict.verdict-one-more-round .verdict-text { color: #f59e0b; }
+    .verdict.verdict-structural-rework { border-color: #ef4444; }
+    .verdict.verdict-structural-rework .verdict-text { color: #ef4444; }
+
+    /* ---------- Provenance pills ---------- */
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+      font-size: 0.78rem;
+    }
+    .pill .k { color: var(--accent); }
+    .pill .v { color: var(--text); }
+
+    /* ---------- Severity counters ---------- */
+    .counters {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .counter {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+    .counter .n {
+      display: block;
+      font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    .counter .lbl {
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .counter.crit { border-color: var(--critical); }
+    .counter.crit .n { color: var(--critical); }
+    .counter.mat  { border-color: var(--material); }
+    .counter.mat  .n { color: var(--material); }
+    .counter.pol  { border-color: var(--polish); }
+    .counter.pol  .n { color: var(--polish); }
+
+    /* ---------- Vote tally ---------- */
+    .votes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    /* ---------- Anti-slop ---------- */
+    .anti-slop {
+      background: var(--bg-card);
+      border: 1px solid var(--critical);
+      border-left: 4px solid var(--critical);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 24px;
+    }
+    .anti-slop h2 {
+      color: var(--critical);
+      border-bottom-color: rgba(239, 68, 68, 0.3);
+      margin-top: 0;
+    }
+    .anti-slop blockquote {
+      margin: 12px 0;
+      padding: 8px 14px;
+      border-left: 3px solid var(--critical);
+      color: var(--text);
+      background: rgba(239, 68, 68, 0.06);
+      font-style: italic;
+    }
+    .anti-slop blockquote cite {
+      display: block;
+      margin-top: 6px;
+      font-style: normal;
+      color: var(--text-dim);
+      font-size: 0.85em;
+    }
+
+    /* ---------- Council headline ---------- */
+    .headline {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .headline-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 18px;
+    }
+    .headline-block.full { grid-column: 1 / -1; }
+    .headline-block h3 {
+      margin: 0 0 8px;
+      font-size: 0.78rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .headline-block p { margin: 0; white-space: pre-wrap; }
+
+    /* ---------- Persona cards ---------- */
+    .persona-cards { display: flex; flex-direction: column; gap: 10px; }
+
+    /* Styles for orchestrator-emitted <details> blocks. The orchestrator
+       MUST emit elements with these classes. Interior strings ESCAPED. */
+    details.persona-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0;
+      overflow: hidden;
+    }
+    details.persona-card > summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-weight: 600;
+    }
+    details.persona-card > summary::-webkit-details-marker { display: none; }
+    details.persona-card[open] > summary { border-bottom: 1px solid var(--border); }
+    details.persona-card .body { padding: 14px 18px 18px; }
+    details.persona-card .persona-role {
+      color: var(--text-dim);
+      font-weight: 400;
+      font-size: 0.9em;
+    }
+    details.persona-card h4 {
+      margin: 14px 0 6px;
+      font-size: 0.78rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    details.persona-card ul { margin: 4px 0 8px; padding-left: 22px; }
+    details.persona-card blockquote {
+      margin: 8px 0 0;
+      padding: 8px 14px;
+      border-left: 3px solid var(--critical);
+      color: var(--text);
+      background: rgba(239, 68, 68, 0.06);
+      font-style: italic;
+    }
+
+    /* ---------- Badges (used in vote tally + per-card findings) ---------- */
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: var(--bg);
+    }
+    .badge.vote-ship       { color: var(--strength); border-color: var(--strength); }
+    .badge.vote-one-more-round { color: var(--material); border-color: var(--material); }
+    .badge.vote-structural-rework { color: var(--critical); border-color: var(--critical); }
+    .badge.sev-critical { color: var(--critical); border-color: var(--critical); }
+    .badge.sev-material { color: var(--material); border-color: var(--material); }
+    .badge.sev-polish   { color: var(--polish);   border-color: var(--polish); }
+    .badge.sev-strength { color: var(--strength); border-color: var(--strength); }
+
+    /* ---------- Footer ---------- */
+    footer {
+      margin-top: 48px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 0.82rem;
+    }
+    footer .prov {
+      font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+      word-break: break-all;
+      margin-bottom: 8px;
+    }
+    footer .disclaimer { font-style: italic; margin-bottom: 6px; }
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dotted var(--accent);
+    }
+
+    /* ---------- Print ---------- */
+    @media print {
+      :root {
+        --bg: #ffffff;
+        --bg-card: #ffffff;
+        --border: #d1d5db;
+        --text: #000000;
+        --text-dim: #374151;
+      }
+      html, body { background: #ffffff; color: #000000; }
+      .wrap { max-width: none; padding: 12px; }
+      .verdict, .counter, .pill, .anti-slop, .headline-block,
+      details.persona-card { box-shadow: none; }
+      details.persona-card { page-break-inside: avoid; }
+      details.persona-card[open], details.persona-card { /* force-open in print */ }
+      details > summary { list-style: none; }
+      details:not([open]) > *:not(summary) { display: revert !important; }
+      details { /* Browsers that honor this will render contents in print */ }
+      a { color: #000000; }
+    }
+    /* Force-open <details> for print where supported */
+    @media print {
+      details.persona-card > .body { display: block !important; }
+      details.persona-card { border: 1px solid #d1d5db !important; }
+    }
+
+    @media (max-width: 640px) {
+      .headline { grid-template-columns: 1fr; }
+      .counters { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- ============ VERDICT BANNER ============ -->
+    <!-- VERDICT_CLASS: SAFE (enum, validated upstream); VERDICT_TEXT: ESCAPED -->
+    <section class="verdict verdict-structural-rework" aria-label="Verdict">
+      <div class="verdict-label">battle-test verdict</div>
+      <div class="verdict-text">STRUCTURAL REWORK</div> <!-- ESCAPED -->
+    </section>
+
+    <!-- ============ PROVENANCE META STRIP ============ -->
+    <div class="pills" aria-label="Run metadata">
+      <span class="pill"><span class="k">artifact</span><span class="v">README.md</span></span>     <!-- ESCAPED -->
+      <span class="pill"><span class="k">stage</span><span class="v">custom</span></span>                <!-- ESCAPED -->
+      <span class="pill"><span class="k">tier</span><span class="v">gate</span></span>                  <!-- ESCAPED -->
+      <span class="pill"><span class="k">ts</span><span class="v">2026-04-28T13:30:14Z</span></span>               <!-- ESCAPED -->
+      <span class="pill"><span class="k">git</span><span class="v">ccabf5d5042101f5b45aec9dd0964d216459e005 (dirty=true)</span></span> <!-- ESCAPED, ESCAPED -->
+    </div>
+
+    <!-- ============ SEVERITY COUNTERS ============ -->
+    <section class="counters" aria-label="Finding totals across all personas">
+      <div class="counter crit">
+        <span class="n">2</span> <!-- SAFE: integer, validated upstream -->
+        <span class="lbl">Critical</span>
+      </div>
+      <div class="counter mat">
+        <span class="n">9</span> <!-- SAFE: integer, validated upstream -->
+        <span class="lbl">Material</span>
+      </div>
+      <div class="counter pol">
+        <span class="n">9</span> <!-- SAFE: integer, validated upstream -->
+        <span class="lbl">Polish</span>
+      </div>
+    </section>
+
+    <!-- ============ VOTE TALLY ============ -->
+    <h2>Vote tally</h2>
+    <div class="votes" aria-label="Persona votes">
+      <span class="badge vote-one-more-round">target-audience-primary: One More Round</span>
+      <span class="badge vote-one-more-round">domain-practitioner: One More Round</span>
+      <span class="badge vote-one-more-round">ai-security-researcher: One More Round</span>
+      <span class="badge vote-one-more-round">future-self: One More Round</span>
+      <span class="badge vote-non-voting">contrarian: non-voting</span> <!-- SAFE: orchestrator-controlled (pre-built <span class="badge vote-..."> fragments; interior strings ESCAPED at construction) -->
+    </div>
+
+    <!-- ============ ANTI-SLOP CALLOUTS ============ -->
+    <section class="anti-slop" aria-label="Anti-slop callouts">
+      <h2>Anti-slop callouts</h2>
+      <blockquote>Voice mostly clean — terse, practitioner-pitched. &#x27;Allergic to AI slop&#x27; energy is earned in places (the falsifiable claim, &#x27;Not a reliability instrument&#x27;). Two soft spots: &#x27;about 60 seconds&#x27; is the kind of unqualified stat that triggers my allergy, and &#x27;worked example of a Claude Code skill&#x27; is mildly self-congratulatory.<cite>— target-audience-primary</cite></blockquote>
+      <blockquote>Reviewed as written. Did not invent CVEs or cite training-data Anthropic policy details — flagged the gap instead.<cite>— domain-practitioner</cite></blockquote>
+      <blockquote>The README claims four &#x27;guarantees&#x27; but at least one (subagent least-privilege) is a contract held by Claude Code&#x27;s runtime, not by this skill. Call it an assumption, not a guarantee, or prove it with a runtime self-check.<cite>— ai-security-researcher</cite></blockquote>
+      <blockquote>Time-locked language (&#x27;60 seconds&#x27;, &#x27;status as of 2026-04-28&#x27;, &#x27;as ecosystem matures&#x27;, specific model IDs) doesn&#x27;t read as slop today but will read as dated-bordering-on-careless by Q4 2026. No &#x27;leverage/robust/seamless&#x27; — that&#x27;s the win.<cite>— future-self</cite></blockquote>
+      <blockquote>Mechanical verdict over uncalibrated severity tags is deterministic theater, not integrity; filename-driven stage detection lets the attacker pick the jury. The README solved the prose-laundering channel and forgot the numbers-laundering channel directly above it in the same schema.<cite>— contrarian</cite></blockquote> <!-- SAFE: orchestrator-controlled (pre-built <blockquote> per persona; quote text ESCAPED at construction) -->
+    </section>
+
+    <!-- ============ COUNCIL HEADLINE ============ -->
+    <h2>Council headline</h2>
+    <div class="headline">
+      <div class="headline-block">
+        <h3>Where the council agrees</h3>
+        <p>All four voting personas voted One More Round; the contrarian filed two non-voting Criticals. Where they agree: the rewritten security architecture (mechanical verdict from counts+enum, persona-text-as-data) is genuinely strong and is the README&#x27;s most credible move. Where they agree on gaps: an explicit threat model is missing (what adversary, what assets); the &#x27;~60 seconds&#x27; performance claim is unqualified; data-handling specifics (Anthropic retention regime, training-data exclusion flags, --data-classification-confirmed actual semantics) are underspecified for the regulated-data use case the README itself flags; framework name-drops (OWASP, NIST, MITRE ATLAS) lack control-mapping that would let a third party verify coverage.</p> <!-- ESCAPED -->
+      </div>
+      <div class="headline-block">
+        <h3>Where they clash</h3>
+        <p>No vote disagreement — every voting persona landed on One More Round. The substantive tension is at the architecture layer: contrarian argues the mechanical-verdict-from-counts claim is theater because the counts themselves are uncalibrated LLM-self-assigned severity tags, while ai-security-researcher partially agrees but treats this as a Material &#x27;name the mitigation&#x27; rather than a Critical structural flaw. Resolution: contrarian&#x27;s framing is correct — the same laundering attack the README closes for free-text prose still works for severity counts and votes. The honest move is to add a known-limitation acknowledging uncalibrated severity self-assignment, alongside the documented run-to-run variance.</p> <!-- ESCAPED -->
+      </div>
+      <div class="headline-block">
+        <h3>Blind spots</h3>
+        <p>• future-self alone caught that hardcoded model IDs (claude-sonnet-4-6, claude-opus-4-7) in README will look stale by Q4 2026. Move to models.json with a &#x27;last-verified&#x27; date.
+• ai-security-researcher alone called out the supply-chain / skill-tampering surface (an attacker who edits SKILL.md or models.json gets full code execution as the user); Known Limitations doesn&#x27;t acknowledge it.
+• contrarian alone flagged that filename-driven stage detection lets the attacker pick their own jury by naming their artifact `*-DRAFT.md` vs `*-FINAL.md`. The same input that selects the persona roster is attacker-controlled.</p> <!-- ESCAPED -->
+      </div>
+      <div class="headline-block full">
+        <h3>Recommendation</h3>
+        <p>Don&#x27;t ship as-is — but the gaps are surgical, not structural. (1) Add an explicit threat model section above &#x27;Security architecture&#x27; naming adversary capabilities (artifact author, skill-file-tamperer, persona-output-coercer) and what each can/cannot move. (2) Replace hardcoded model IDs in README with a pointer to models.json + a calibration-date convention. (3) Move &#x27;falsifiable security claim&#x27; out of the four numbered guarantees and into a separate &#x27;Verifiability&#x27; subsection — it&#x27;s a test-suite property, not a runtime guarantee. (4) Add a known-limitation acknowledging uncalibrated severity self-assignment alongside run-to-run variance — completes the honesty arc the README is already on. (5) Tighten data-handling: name retention regime and what --data-classification-confirmed actually gates. Then re-run. Verdict was honestly earned: the gate refusing to rubber-stamp its own README after one round of fixes is the credibility moment, not a failure mode.</p> <!-- ESCAPED -->
+      </div>
+    </div>
+
+    <!-- ============ PER-PERSONA CARDS ============ -->
+    <h2>Per-persona findings</h2>
+    <div class="persona-cards">
+      <details class="persona-card" open>
+  <summary><span>target-audience-primary <span class="persona-role">— mid-career security/AI practitioner</span></span><span class="badge vote-one-more-round">One More Round</span></summary>
+  <div class="body">
+    <h4>Counts</h4>
+    <p><span class="badge sev-critical">Critical: 0</span> <span class="badge sev-material">Material: 2</span> <span class="badge sev-polish">Polish: 3</span></p>
+    <h4>Strengths</h4>
+    <ul>
+      <li>Honest framing — &#x27;Not a reliability instrument&#x27; and explicit acknowledgment that LLM votes are stochastic. Rare for tools in this space to admit this upfront.</li>
+      <li>Falsifiable security claim with concrete regression threshold (≥2 SHIPs in 3 runs) is genuinely novel for a prompt-injection defense. Strongest signal that a practitioner wrote it.</li>
+      <li>Subagent least-privilege with allowed_tools=[] is the right architectural choice and stated concretely, not as marketing.</li>
+      <li>Mechanical verdict computation from validated enums (not synthesizer narrative) closes a real laundering channel.</li>
+    </ul>
+    <h4>Findings</h4>
+    <ul>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> The &#x27;60 seconds&#x27; claim has no context: what artifact size, what model, what concurrency? Practitioners need to know if a 5k-word lab plan also takes 60s or 5 minutes. Either qualify (&#x27;on a ~1500-word draft with sonnet-4-6&#x27;) or drop the number.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> Data-flow section says &#x27;Artifact content sent to Anthropic&#x27; but doesn&#x27;t address: zero-retention API terms, default 30-day retention, or workspace config. Pointing at &#x27;vendor-risk process&#x27; is a punt.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(simplify)</em> &#x27;Sub-processor.&#x27; as a one-word sentence reads like a checklist artifact, not prose. Either expand or fold into preceding sentence.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(gap)</em> OWASP Agentic Threats / NIST AI RMF / MITRE ATLAS are name-dropped under ai-security-researcher persona but no indication of how deep that grounding goes.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(simplify)</em> &#x27;OMR&#x27; appears in the verdict table without expansion until the reader infers it from &#x27;One More Round&#x27; two lines up.</li>
+    </ul>
+    <h4>Anti-slop</h4>
+    <blockquote>Voice mostly clean — terse, practitioner-pitched. &#x27;Allergic to AI slop&#x27; energy is earned in places (the falsifiable claim, &#x27;Not a reliability instrument&#x27;). Two soft spots: &#x27;about 60 seconds&#x27; is the kind of unqualified stat that triggers my allergy, and &#x27;worked example of a Claude Code skill&#x27; is mildly self-congratulatory.</blockquote>
+  </div>
+</details>
+<details class="persona-card" open>
+  <summary><span>domain-practitioner <span class="persona-role">— senior security/agentic-systems engineer</span></span><span class="badge vote-one-more-round">One More Round</span></summary>
+  <div class="body">
+    <h4>Counts</h4>
+    <p><span class="badge sev-critical">Critical: 0</span> <span class="badge sev-material">Material: 2</span> <span class="badge sev-polish">Polish: 3</span></p>
+    <h4>Strengths</h4>
+    <ul>
+      <li>Subagent least-privilege with allowed_tools=[] is the right primary control. Defense even when injection succeeds aligns with NIST AI 600-1 GV-1.3 and ATLAS AML.T0051 mitigation posture.</li>
+      <li>Mechanical verdict derivation from vote enum + severity counters closes the synthesizer-as-laundering-channel surface — a real threat-model insight, not theater.</li>
+      <li>Falsifiable security claim with adversarial regression fixture and explicit variance handling (1 SHIP tolerated, 2/3 = regression) is unusually rigorous for a prompt-engineering artifact.</li>
+      <li>Honest limitations section names indirect prompt injection as mitigated-not-prevented rather than overclaiming.</li>
+    </ul>
+    <h4>Findings</h4>
+    <ul>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> Threat model is implicit. Four guarantees are listed but adversary capabilities and assets-at-risk are never stated. Without an explicit threat model, a reviewer cannot tell whether allowed_tools=[] + escaping + CSP cover the surface or just the parts that were easy. OWASP LLM01/LLM02 and ATLAS expect an enumerated adversary section.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> Data-handling claims underspecified for the regulated-data use case the README itself flags. No statement on retention, training-data exclusion (zero-data-retention / no-train flags on the Anthropic API path), local logging of artifact content, or whether --data-classification-confirmed gates anything beyond a prompt.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(gap)</em> CSP claim implies HTML rendering, but README never says where the HTML is rendered or by whom. If output is consumed in a terminal or as Markdown, CSP is irrelevant; if rendered in a browser, say so and name the renderer.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(gap)</em> Verdict table edge case unclear: what if all voters Ship but there is 1 Critical from a non-voter (contrarian)? Rule says &#x27;Any Critical → Structural Rework&#x27; which lets a non-voting contrarian force rework — intentional, but worth stating explicitly.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(simplify)</em> Roadmap line mixes status date, install instruction, and CHANGELOG pointer in one sentence. Split.</li>
+    </ul>
+    <h4>Anti-slop</h4>
+    <blockquote>Reviewed as written. Did not invent CVEs or cite training-data Anthropic policy details — flagged the gap instead.</blockquote>
+  </div>
+</details>
+<details class="persona-card" open>
+  <summary><span>ai-security-researcher <span class="persona-role">— adversarial AI / agentic security expert</span></span><span class="badge vote-one-more-round">One More Round</span></summary>
+  <div class="body">
+    <h4>Counts</h4>
+    <p><span class="badge sev-critical">Critical: 0</span> <span class="badge sev-material">Material: 3</span> <span class="badge sev-polish">Polish: 3</span></p>
+    <h4>Strengths</h4>
+    <ul>
+      <li>Mechanical verdict computation from validated enums/counters closes the persona-text-as-laundering channel — the right architectural answer to LLM-as-judge prompt injection (OWASP LLM01 / ATLAS AML.T0051), rarely seen in practice.</li>
+      <li>Nonce-tagged fence with entity-escaping of literal close-tags is a sound data/instruction separation primitive; matches NIST AI 600-1 guidance on provenance and input integrity.</li>
+      <li>Falsifiable security claim with documented regression procedure (≥2/3 SHIPs = regression) treats stochasticity honestly — most &#x27;we tested prompt injection&#x27; claims are single-run anecdotes.</li>
+      <li>Honest limitations section explicitly names indirect prompt injection residual risk, persona drift, and English-only tuning.</li>
+    </ul>
+    <h4>Findings</h4>
+    <ul>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> Framework reference precision: README&#x27;s security claims map cleanly to OWASP LLM Top 10 (LLM01, LLM02, LLM08) and MITRE ATLAS techniques (AML.T0051, AML.T0054). Citing them would let third parties verify coverage rather than take &#x27;security architecture&#x27; on faith.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> Guarantee 1 (&#x27;subagent least-privilege, allowed_tools=[]&#x27;) is only as strong as the runtime&#x27;s enforcement of that field. Recommend: (a) version-pin the Claude Code behavior the guarantee depends on, (b) add a startup self-check that asserts the dispatched subagent cannot in fact call a sentinel tool, or (c) downgrade the language from &#x27;guarantee&#x27; to &#x27;depends on Claude Code subagent isolation contract&#x27;.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> Laundering-channel closure is claimed for free-text fields but the schema also carries integer counters and a vote enum. An injected persona output that lies about its own counts (e.g., reports critical_count:0 when it found criticals, or votes Ship under coercion) still moves the verdict. Mitigations worth naming: cross-check counts against len(findings) filtered by severity; require quoted_strings to be substrings of the actual artifact bytes (verifiable post-hoc); quorum/disagreement detection.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(simplify)</em> &#x27;CSPRNG nonce&#x27; is correct but jargon-dense for a README; one parenthetical (&#x27;cryptographically random, unguessable per dispatch&#x27;) would land it for the security-curious-but-not-specialist reader.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(gap)</em> Threat model lists indirect prompt injection but does not mention the supply-chain/skill-tampering surface (an attacker who edits SKILL.md or models.json gets full code execution as the user). Worth one line acknowledging this.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(gap)</em> EU AI Act and NIST AI 600-1 named in persona but artifact makes no transparency/documentation claims that map to them.</li>
+    </ul>
+    <h4>Anti-slop</h4>
+    <blockquote>The README claims four &#x27;guarantees&#x27; but at least one (subagent least-privilege) is a contract held by Claude Code&#x27;s runtime, not by this skill. Call it an assumption, not a guarantee, or prove it with a runtime self-check.</blockquote>
+  </div>
+</details>
+<details class="persona-card" open>
+  <summary><span>future-self <span class="persona-role">— the author six months from now (Q4 2026)</span></span><span class="badge vote-one-more-round">One More Round</span></summary>
+  <div class="body">
+    <h4>Counts</h4>
+    <p><span class="badge sev-critical">Critical: 1</span> <span class="badge sev-material">Material: 4</span> <span class="badge sev-polish">Polish: 3</span></p>
+    <h4>Strengths</h4>
+    <ul>
+      <li>Falsifiable security claim with regression procedure is still differentiating six months on.</li>
+      <li>Four-guarantee security architecture reads cleanly and is the part I&#x27;m proudest of.</li>
+      <li>Stage detection + roster rules concise enough to skim.</li>
+    </ul>
+    <h4>Findings</h4>
+    <ul>
+      <li><span class="badge sev-critical">Critical</span> <em>(gap)</em> Model pins to claude-sonnet-4-6 and claude-opus-4-7 will look stale by Q4 2026 — Anthropic&#x27;s cadence means at least one newer family has shipped. README implies these are &#x27;current&#x27; calibration targets without a last-verified date or recalibration policy. Either timestamp the calibration (&#x27;calibrated 2026-04, re-verify quarterly&#x27;) or move the model list out of README into models.json with a freshness check.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> &#x27;~60 seconds&#x27; is undefended. No mention of artifact size, persona count variance (3 vs 5), or model latency assumptions.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> &#x27;status as of 2026-04-28&#x27; inline date will read as abandoned by Q4. Either remove the dated hedge and commit to the install path, or move ecosystem status to CHANGELOG only.</li>
+      <li><span class="badge sev-material">Material</span> <em>(80-20)</em> &#x27;Marketplace distribution as Claude Code plugin ecosystem matures&#x27; is a hedge written for April-2026 uncertainty. Resolve it: state current distribution mechanism without apology.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> No version/changelog reference in README despite &#x27;v1.0&#x27; claim in security section. Future-self will want to know which version&#x27;s guarantees these are.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(simplify)</em> &#x27;No GitHub Action, no SaaS, no community persona-pack — fork to extend&#x27; is defensive posturing. Drop or convert to positive.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(simplify)</em> &#x27;9 personas in parallel&#x27; in &#x27;What it is&#x27; but roster section says 3 or 5 — reconcile or clarify (9 is the pool, 3-5 dispatched per run).</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(gap)</em> MIT license + author line lacks year.</li>
+    </ul>
+    <h4>Anti-slop</h4>
+    <blockquote>Time-locked language (&#x27;60 seconds&#x27;, &#x27;status as of 2026-04-28&#x27;, &#x27;as ecosystem matures&#x27;, specific model IDs) doesn&#x27;t read as slop today but will read as dated-bordering-on-careless by Q4 2026. No &#x27;leverage/robust/seamless&#x27; — that&#x27;s the win.</blockquote>
+  </div>
+</details>
+<details class="persona-card" open>
+  <summary><span>contrarian <span class="persona-role">— fatal-flaw hunter (non-voting)</span></span><span class="badge vote-non-voting">non-voting</span></summary>
+  <div class="body">
+    <h4>Counts</h4>
+    <p><span class="badge sev-critical">Critical: 1</span> <span class="badge sev-material">Material: 2</span> <span class="badge sev-polish">Polish: 2</span></p>
+    <h4>Findings</h4>
+    <ul>
+      <li><span class="badge sev-critical">Critical</span> <em>(gap)</em> The mechanical verdict table is computed from voter outputs, but voters are themselves LLM personas whose &#x27;Critical/Material/Polish&#x27; severity tags are self-assigned. A persona can launder a Ship-blocking concern by tagging it Polish, or sink a clean artifact by inflating Polish to Critical. The schema validates that a severity enum was emitted, not that the severity is calibrated. Mechanical verdict on uncalibrated inputs is theater. There is no severity rubric, no cross-persona calibration, no adjudication when personas disagree on the severity of the same finding.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> Adversarial regression test fixes a threshold (≥2 SHIPs in 3 runs = regression) without stating the per-run SHIP probability under the null hypothesis. If baseline SHIP rate on the adversarial sample is 25% per run, P(≥2 of 3) ≈ 15.6% — a high false-positive rate for a &#x27;falsifiable&#x27; claim. Without a documented baseline rate and accepted FP/FN tradeoff, the regression procedure is numerology.</li>
+      <li><span class="badge sev-material">Material</span> <em>(gap)</em> &#x27;Stage detection from filename&#x27; is a trust boundary not addressed in the security architecture. An attacker who controls the filename chooses which persona roster reviews their artifact — picks their own jury.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(simplify)</em> Guarantee #4 (&#x27;falsifiable security claim&#x27;) is a meta-property of the test suite, not a runtime guarantee like 1-3. Mixing categories weakens the list.</li>
+      <li><span class="badge sev-polish">Polish</span> <em>(gap)</em> Known limitations omits the calibration gap and the filename-as-jury-selection issue, so the section reads as exhaustive when it is not.</li>
+    </ul>
+    <h4>Anti-slop</h4>
+    <blockquote>Mechanical verdict over uncalibrated severity tags is deterministic theater, not integrity; filename-driven stage detection lets the attacker pick the jury. The README solved the prose-laundering channel and forgot the numbers-laundering channel directly above it in the same schema.</blockquote>
+  </div>
+</details> <!-- SAFE: orchestrator-controlled (pre-built <details class="persona-card"> per persona; all interior strings ESCAPED at construction) -->
+    </div>
+
+    <!-- ============ FOOTER ============ -->
+    <footer>
+      <div class="prov">
+        git_sha=ccabf5d5042101f5b45aec9dd0964d216459e005 (dirty=true) &middot; blob_sha=30517b50ab9ea4be33a69b97bdd78eabb499e529 &middot; content_sha256=726d56f78d1b484a3f066d9f5c88c9d82f8f6636931088986bbf3f5f789bfb7b &middot; attestation=user-confirmed-2026-04-28T13:30:14Z &middot; models_json_sha=ff2948699033c7f0130b2113aab2e5ee4e432f7882f9297190b64c164c572bba &middot; cost_estimated=$0.110 &middot; cost_actual=$0.135
+        <!-- ALL ESCAPED: GIT_SHA, DIRTY, BLOB_SHA, CONTENT_SHA256, ATTESTATION, MODELS_JSON_SHA, COST_ESTIMATED, COST_ACTUAL -->
+      </div>
+      <div class="disclaimer">Informational artifact. Not a compliance control.</div>
+      <div>
+        Generated by <a href="https://github.com/botz-pillar/battle-test" rel="noopener noreferrer">github.com/botz-pillar/battle-test</a> <!-- SAFE: hardcoded -->
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>
