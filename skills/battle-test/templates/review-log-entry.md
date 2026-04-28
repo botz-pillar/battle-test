@@ -23,6 +23,12 @@
 **Recommendation:**
 {{recommendation}}
 
+### Apply these and re-run
+
+_Top findings ordered by severity. Copy into a TODO, address, then re-run `/battle-test`._
+
+{{apply_checklist}}
+
 ### Per-persona reports
 
 <details>

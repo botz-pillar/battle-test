@@ -376,6 +376,59 @@ The orchestrator constructs `{{ARTIFACT_SUMMARY_HTML}}` as: `<span class="stem">
 
 `{{ARTIFACT_SIZE}}` in the provenance pills strip is human-readable: `<word_count> words / <byte_count_human> KB` (e.g., `750 words / 4.8 KB`). Useful for cost-estimate calibration and for readers comparing reports.
 
+#### Severity heatmap (synthesizer responsibility)
+
+The `{{HEATMAP_ROWS}}` placeholder takes one `<tr>` per persona, in roster order. Each row has 5 cells: persona name (escaped, in mono), Critical count, Material count, Polish count, vote.
+
+**Cell-class scaling rules** (orchestrator computes from validated counts):
+
+| Count | Critical class | Material class | Polish class |
+|-------|---------------|----------------|--------------|
+| 0     | `zero`        | `zero`         | `zero`       |
+| 1     | `crit-1`      | `mat-1`        | `pol-1`      |
+| 2     | `crit-2`      | `mat-2`        | `pol-2`      |
+| 3+    | `crit-3`      | `mat-3`        | `pol-3`      |
+
+Vote cell uses the same `vote-{ship|one-more-round|structural-rework|non-voting}` class as the vote-tally badges. This gives at-a-glance answers to: *which personas are concentrated on which severity tier?* and *is the council balanced or is one persona carrying all the Criticals?*
+
+The heatmap subsumes the aggregate severity-counters block informationally (sum the rows). Both ship — counters for the at-a-glance number, heatmap for the distribution.
+
+Example row construction (one persona, escaped at construction):
+
+```html
+<tr>
+  <td class="persona-name">ai-security-researcher</td>
+  <td class="cell crit-1">1</td>
+  <td class="cell mat-2">2</td>
+  <td class="cell zero">0</td>
+  <td class="cell vote-cell"><span class="badge vote-one-more-round">One More Round</span></td>
+</tr>
+```
+
+#### Apply checklist (synthesizer responsibility)
+
+The `{{APPLY_CHECKLIST_HTML}}` placeholder takes one `<li>` per finding, ordered Critical → Material → Polish, then by persona id (alphabetical) within each severity. Default cap: top 6 findings (avoid checklist fatigue). If there are more than 6, the synthesizer picks the highest-severity 6.
+
+The markdown equivalent is `{{apply_checklist}}` — a `- [ ]` list using the same ordering, with severity tag + persona id prefix.
+
+**Construction rules:**
+
+- Each `<li>` opens with a colored severity tag span (`<span class="tag crit|mat|pol">`), followed by a dim persona-id span (`<span class="persona">`), then the escaped finding text.
+- Markdown bullets: `- [ ] [Critical · ai-security-researcher] <finding text>`.
+- If verdict is `Ship` AND zero unresolved findings: omit the entire Apply Checklist block (HTML and markdown both). The block exists to drive iteration; no findings = nothing to drive.
+
+Example HTML li (escaped at construction):
+
+```html
+<li><span class="tag crit">Critical</span><span class="persona">ai-security-researcher</span>Add explicit threat model section above Security Architecture naming adversary capabilities.</li>
+```
+
+The checklist is meant to be **copy-pasteable** into a TODO list, GitHub issue, PR description, or follow-up commit message. Don't add prose around findings; keep them terse and actionable.
+
+#### Deferred to v1.2: run-comparison footer
+
+When a prior review log entry exists for the same artifact, surfacing a diff (`previous: <date> · <verdict> · diff: ±N Critical/Material/Polish`) would close the iteration loop visually. Deferred because reliable parsing of prior log entries is brittle on first impl and risks stale state issues. v1.2 candidate.
+
 ### Step 10 — HTML output rules (mandatory escaping)
 
 Every persona-generated string and synthesizer string rendered in the HTML — findings, strengths, anti-slop quotes, headline subsections, quoted artifact excerpts — passes through an HTML-entity escaper that maps:

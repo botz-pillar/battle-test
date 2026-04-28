@@ -26,6 +26,8 @@
     {{TIMESTAMP}}                 ESCAPED   ISO 8601 string
     {{ARTIFACT_SIZE}}             ESCAPED   human-readable size, e.g. "750 words / 4.8 KB"
     {{ARTIFACT_SUMMARY_HTML}}     SAFE      orchestrator-built fragment: <span class="stem">{stem}</span> + ESCAPED prose
+    {{HEATMAP_ROWS}}              SAFE      orchestrator-built <tr> per persona; persona-name ESCAPED; cells classed by count tier
+    {{APPLY_CHECKLIST_HTML}}      SAFE      orchestrator-built <li> per finding; finding text ESCAPED; tag + persona spans pre-built
 
   Severity counters (top-of-page summary)
     {{TOTAL_CRITICAL}}            SAFE      integer (validated by orchestrator)
@@ -238,6 +240,98 @@
     .counter.mat  .n { color: var(--material); }
     .counter.pol  { border-color: var(--polish); }
     .counter.pol  .n { color: var(--polish); }
+
+    /* ---------- Severity heatmap (per-persona breakdown) ---------- */
+    .heatmap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px 20px;
+      margin-bottom: 28px;
+      overflow-x: auto;
+    }
+    .heatmap-grid {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .heatmap-grid th,
+    .heatmap-grid td {
+      padding: 8px 12px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .heatmap-grid th {
+      color: var(--text-dim);
+      font-weight: 500;
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .heatmap-grid td.persona-name {
+      text-align: left;
+      font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+      color: var(--text);
+      font-size: 0.82rem;
+    }
+    .heatmap-grid td.cell { font-family: "SF Mono", Menlo, Monaco, Consolas, monospace; font-weight: 600; }
+    .heatmap-grid td.zero { color: var(--text-dim); opacity: 0.4; font-weight: 400; }
+    .heatmap-grid td.crit-1 { background: rgba(239,68,68,0.18); color: var(--critical); }
+    .heatmap-grid td.crit-2 { background: rgba(239,68,68,0.32); color: #fff; }
+    .heatmap-grid td.crit-3 { background: rgba(239,68,68,0.48); color: #fff; }
+    .heatmap-grid td.mat-1  { background: rgba(245,158,11,0.18); color: var(--material); }
+    .heatmap-grid td.mat-2  { background: rgba(245,158,11,0.32); color: #fff; }
+    .heatmap-grid td.mat-3  { background: rgba(245,158,11,0.48); color: #fff; }
+    .heatmap-grid td.pol-1  { background: rgba(250,204,21,0.18); color: var(--polish); }
+    .heatmap-grid td.pol-2  { background: rgba(250,204,21,0.32); color: #1a1100; }
+    .heatmap-grid td.pol-3  { background: rgba(250,204,21,0.48); color: #1a1100; }
+    .heatmap-grid td.vote-cell { font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; }
+
+    /* ---------- Apply checklist ---------- */
+    .apply-checklist {
+      background: var(--bg-card);
+      border: 1px solid var(--accent);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px 20px 20px;
+      margin: 24px 0 28px;
+    }
+    .apply-checklist h2 { color: var(--accent); margin-top: 0; }
+    .apply-checklist .lead {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      margin: 0 0 12px;
+    }
+    .apply-checklist ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .apply-checklist li {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .apply-checklist li:last-child { border-bottom: none; }
+    .apply-checklist li .tag {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      margin-right: 6px;
+    }
+    .apply-checklist li .tag.crit { background: var(--critical); color: #fff; }
+    .apply-checklist li .tag.mat  { background: var(--material); color: #1a1100; }
+    .apply-checklist li .tag.pol  { background: var(--polish); color: #1a1100; }
+    .apply-checklist li .persona {
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      margin-right: 6px;
+    }
 
     /* ---------- Vote tally ---------- */
     .votes {
@@ -466,6 +560,29 @@
       </div>
     </section>
 
+    <!-- ============ SEVERITY HEATMAP (per-persona breakdown) ============ -->
+    <!-- Rows = personas (in roster order), cols = Critical / Material / Polish / Vote. -->
+    <!-- {{HEATMAP_ROWS}} is orchestrator-built: one <tr> per persona with cells classed by count -->
+    <!-- (zero | crit-1/2/3 | mat-1/2/3 | pol-1/2/3) and a vote-cell with vote-{ship|...} class. -->
+    <!-- All persona-name strings ESCAPED at construction. -->
+    <section class="heatmap" aria-label="Severity heatmap by persona">
+      <h2 style="margin-top:0;">Severity heatmap</h2>
+      <table class="heatmap-grid">
+        <thead>
+          <tr>
+            <th style="text-align:left;">Persona</th>
+            <th>Critical</th>
+            <th>Material</th>
+            <th>Polish</th>
+            <th>Vote</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{HEATMAP_ROWS}} <!-- SAFE: orchestrator-controlled (pre-built <tr> per persona; persona-name ESCAPED at construction) -->
+        </tbody>
+      </table>
+    </section>
+
     <!-- ============ VOTE TALLY ============ -->
     <h2>Vote tally</h2>
     <div class="votes" aria-label="Persona votes">
@@ -498,6 +615,20 @@
         <p>{{HEADLINE_RECOMMENDATION}}</p> <!-- ESCAPED -->
       </div>
     </div>
+
+    <!-- ============ APPLY CHECKLIST ============ -->
+    <!-- Top N findings ordered Critical -> Material -> Polish, then by persona. -->
+    <!-- Copy-pasteable into a TODO list, PR description, or follow-up commit message. -->
+    <!-- {{APPLY_CHECKLIST_HTML}} is orchestrator-built: one <li> per finding with a -->
+    <!-- <span class="tag crit|mat|pol"> + <span class="persona"> + ESCAPED finding text. -->
+    <!-- Skipped entirely (block omitted) when verdict is Ship and 0 unresolved findings. -->
+    <section class="apply-checklist" aria-label="Apply these and re-run">
+      <h2>Apply these and re-run</h2>
+      <p class="lead">Top findings ordered by severity. Copy into a TODO, address, then re-run <code>/battle-test</code>.</p>
+      <ul>
+        {{APPLY_CHECKLIST_HTML}} <!-- SAFE: orchestrator-controlled (pre-built <li> per finding; finding text ESCAPED at construction) -->
+      </ul>
+    </section>
 
     <!-- ============ PER-PERSONA CARDS ============ -->
     <h2>Per-persona findings</h2>
